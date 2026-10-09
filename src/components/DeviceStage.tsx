@@ -64,15 +64,17 @@ export function DeviceStage({ model, image, settings, view, blur, onChange, onLe
 
   const label = `${model.label} wallpaper preview. Drag to move, scroll or pinch to zoom, arrow keys to nudge, 0 to reset.`
 
+  // Frame proportions in % of the laptop's width, so they scale with it.
+  const shape = macShape(model.group)
   const screen = (
     <div
       ref={stage}
       tabIndex={0}
       role="application"
       aria-label={label}
-      style={{ aspectRatio: `${model.w} / ${model.h}`, touchAction: 'none' }}
+      style={{ aspectRatio: `${model.w} / ${model.h}`, touchAction: 'none', ...(mac ? { borderRadius: `${shape.screenR}cqw` } : {}) }}
       className={`group relative cursor-grab touch-none overflow-hidden bg-black outline-none select-none active:cursor-grabbing ${
-        mac ? 'rounded-[10px] sm:rounded-[14px]' : 'rounded-[13%/6%]'
+        mac ? '' : 'rounded-[13%/6%]'
       }`}
     >
       <canvas ref={canvas} width={pw} height={ph} className="absolute inset-0 h-full w-full" />
@@ -106,39 +108,60 @@ export function DeviceStage({ model, image, settings, view, blur, onChange, onLe
   const buttonStyle = { background: 'linear-gradient(90deg,#8d8d93,#d9d9dd 50%,#8d8d93)' }
 
   return mac ? (
-    <div className="relative w-full max-w-[760px] pb-6">
+    <div className="relative w-full max-w-[760px]" style={{ containerType: 'inline-size', paddingBottom: shape.stand ? 0 : '3cqw' }}>
       {/* lid: anodised aluminium with a lit top edge, shading to the sides */}
       <div
-        className="relative rounded-[20px] p-[4px] sm:p-[5px]"
+        className="relative"
         style={{
-          background: 'linear-gradient(90deg,rgba(0,0,0,.22),rgba(255,255,255,0) 6%,rgba(255,255,255,0) 94%,rgba(0,0,0,.22)), linear-gradient(180deg,#f6f6f8 0%,#d8d9dd 8%,#bfc0c5 55%,#a4a5ab 100%)',
+          padding: `${shape.rim}cqw`,
+          borderRadius: `${shape.lidR}cqw`,
+          background: 'linear-gradient(90deg,rgba(0,0,0,.2),rgba(255,255,255,0) 5%,rgba(255,255,255,0) 95%,rgba(0,0,0,.2)), linear-gradient(180deg,#f6f6f8 0%,#d8d9dd 8%,#bfc0c5 55%,#a4a5ab 100%)',
           boxShadow: '0 0 0 1px rgba(0,0,0,.4), inset 0 1px 0 #fff, inset 0 -1px 0 rgba(0,0,0,.25)',
         }}
       >
-        <div className="relative rounded-[16px] bg-black p-[6px] sm:p-[9px]" style={{ boxShadow: '0 0 0 1px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.06)' }}>
-          <span aria-hidden className="absolute top-[2px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-[#1b2230] ring-1 ring-white/20 sm:top-[3px]" />
+        <div
+          className="relative bg-black"
+          style={{
+            padding: `${shape.bezel}cqw`,
+            paddingBottom: `${shape.chin}cqw`,
+            borderRadius: `${shape.lidR - shape.rim}cqw`,
+            boxShadow: '0 0 0 1px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.06)',
+          }}
+        >
+          <span aria-hidden className="absolute left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-[#1b2230] ring-1 ring-white/20" style={{ top: `${shape.bezel / 2 - 0.2}cqw` }} />
           {screen}
           <span
             aria-hidden
-            className="pointer-events-none absolute inset-[6px] rounded-[10px] sm:inset-[9px] sm:rounded-[14px]"
-            style={{ background: 'linear-gradient(115deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,0) 30%,rgba(255,255,255,0) 68%,rgba(255,255,255,.04) 100%)' }}
+            className="pointer-events-none absolute"
+            style={{ inset: `${shape.bezel}cqw ${shape.bezel}cqw ${shape.chin}cqw`, borderRadius: `${shape.screenR}cqw`, background: 'linear-gradient(115deg,rgba(255,255,255,.10) 0%,rgba(255,255,255,0) 30%,rgba(255,255,255,0) 68%,rgba(255,255,255,.04) 100%)' }}
           />
         </div>
       </div>
-      {/* hinge shadow where the lid meets the base */}
-      <div aria-hidden className="relative z-10 mx-[2%] -mt-px h-[3px]" style={{ background: 'linear-gradient(180deg,#3b3c40,#7a7b80)', borderRadius: '0 0 4px 4px' }} />
-      {/* base seen from the front: slightly wider, thick enough to show a lit front lip */}
-      <div
-        className="relative -mx-[5%] -mt-px h-[16px] sm:h-[20px]"
-        style={{
-          background: 'linear-gradient(90deg,rgba(0,0,0,.18),rgba(255,255,255,0) 8%,rgba(255,255,255,0) 92%,rgba(0,0,0,.18)), linear-gradient(180deg,#dcdde1 0%,#e9e9ec 20%,#c9cace 62%,#9fa0a6 100%)',
-          borderRadius: '0 0 28px 28px / 0 0 16px 16px',
-          boxShadow: '0 0 0 1px rgba(0,0,0,.3), inset 0 1px 0 #fff, inset 0 -1px 0 rgba(0,0,0,.25)',
-        }}
-      >
-        <span aria-hidden className="absolute top-0 left-1/2 h-[7px] w-[16%] -translate-x-1/2 rounded-b-[14px]" style={{ background: 'linear-gradient(180deg,#686970,#b9babf)', boxShadow: 'inset 0 1px 2px rgba(0,0,0,.45)' }} />
-      </div>
-      <div aria-hidden className="pointer-events-none absolute inset-x-[-2%] bottom-[8px] h-[18px] rounded-[50%] bg-black/35 blur-xl" />
+      {shape.stand ? (
+        // external display: neck and foot instead of a keyboard base
+        <div aria-hidden className="relative mx-auto" style={{ width: '14cqw' }}>
+          <div style={{ height: '9cqw', background: 'linear-gradient(90deg,#8e8f95,#e4e4e8 35%,#c3c4c9 65%,#85868c)', clipPath: 'polygon(14% 0,86% 0,100% 100%,0 100%)' }} />
+          <div style={{ height: '1cqw', width: '22cqw', marginLeft: '-4cqw', background: 'linear-gradient(180deg,#e9e9ec,#b0b1b6)', borderRadius: '0.6cqw', boxShadow: '0 0 0 1px rgba(0,0,0,.3), 0 1.2cqw 2cqw rgba(0,0,0,.3)' }} />
+        </div>
+      ) : (
+        <>
+          {/* hinge shadow where the lid meets the base */}
+          <div aria-hidden className="relative z-10 -mt-px h-[3px]" style={{ margin: `0 ${shape.lidR}cqw`, background: 'linear-gradient(180deg,#3b3c40,#7a7b80)', borderRadius: '0 0 4px 4px' }} />
+          {/* base: same width as the lid, with a thumb notch */}
+          <div
+            className="relative -mt-px"
+            style={{
+              height: `${shape.baseH}cqw`,
+              borderRadius: shape.baseRadius,
+              background: 'linear-gradient(90deg,rgba(0,0,0,.16),rgba(255,255,255,0) 6%,rgba(255,255,255,0) 94%,rgba(0,0,0,.16)), linear-gradient(180deg,#dcdde1 0%,#e9e9ec 20%,#c9cace 62%,#9fa0a6 100%)',
+              boxShadow: '0 0 0 1px rgba(0,0,0,.3), inset 0 1px 0 #fff, inset 0 -1px 0 rgba(0,0,0,.25)',
+            }}
+          >
+            <span aria-hidden className="absolute top-0 left-1/2 -translate-x-1/2" style={{ width: '15cqw', height: `${shape.baseH * 0.35}cqw`, borderRadius: '0 0 1.6cqw 1.6cqw', background: 'linear-gradient(180deg,#686970,#b9babf)', boxShadow: 'inset 0 1px 2px rgba(0,0,0,.45)' }} />
+          </div>
+          <div aria-hidden className="pointer-events-none absolute inset-x-[-1%] bottom-[2cqw] h-[2.4cqw] rounded-[50%] bg-black/35 blur-xl" />
+        </>
+      )}
     </div>
   ) : (
     <div className="relative w-[min(100%,290px)]">
@@ -155,4 +178,20 @@ export function DeviceStage({ model, image, settings, view, blur, onChange, onLe
       </div>
     </div>
   )
+}
+
+interface MacShape { rim: number; bezel: number; chin: number; lidR: number; screenR: number; baseH: number; baseRadius: string; stand?: boolean }
+
+/** Frame proportions in % of width. Air is soft and tapered, Pro is squarer and thicker, displays get a stand. */
+function macShape(group: string): MacShape {
+  switch (group) {
+    case 'MacBook Pro':
+      return { rim: 0.5, bezel: 1.0, chin: 1.0, lidR: 1.5, screenR: 0.6, baseH: 2.5, baseRadius: '0 0 1.1cqw 1.1cqw / 0 0 1cqw 1cqw' }
+    case 'MacBook Neo':
+      return { rim: 0.6, bezel: 1.5, chin: 1.5, lidR: 2.4, screenR: 1.0, baseH: 2.0, baseRadius: '0 0 3.4cqw 3.4cqw / 0 0 1.5cqw 1.5cqw' }
+    case 'External display':
+      return { rim: 0.35, bezel: 0.9, chin: 0.9, lidR: 1.2, screenR: 0.3, baseH: 0, baseRadius: '0', stand: true }
+    default:
+      return { rim: 0.5, bezel: 1.1, chin: 1.1, lidR: 2.3, screenR: 1.0, baseH: 2.0, baseRadius: '0 0 3.4cqw 3.4cqw / 0 0 1.5cqw 1.5cqw' }
+  }
 }

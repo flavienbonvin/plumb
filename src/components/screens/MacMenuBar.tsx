@@ -12,7 +12,7 @@ interface Props {
 
 export function MacMenuBar({ notch, desktop, dark = false }: Props) {
   const now = useClock()
-  const h = notch ? 2.4 : 1.8
+  const h = notch ? 1.85 : 1.8
   const tone = dark ? 'text-black/85' : 'text-white'
   const shadow = dark ? undefined : { textShadow: '0 1px 8px rgba(0,0,0,.3)' }
   return (
@@ -35,7 +35,7 @@ export function MacMenuBar({ notch, desktop, dark = false }: Props) {
           {desktop && <span className="ml-[0.2cqw]" style={{ fontVariantNumeric: 'tabular-nums' }}>{menuDate(now)}</span>}
         </div>
       </div>
-      {notch && <div className="absolute top-0 left-1/2 -translate-x-1/2 rounded-b-[0.9cqw] bg-black" style={{ height: `${h}cqw`, width: '10.4cqw' }} />}
+      {notch && <div className="absolute top-0 left-1/2 -translate-x-1/2 rounded-b-[0.65cqw] bg-black" style={{ height: `${h - 0.1}cqw`, width: '8.8cqw' }} />}
     </>
   )
 }
