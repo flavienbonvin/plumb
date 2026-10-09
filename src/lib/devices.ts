@@ -10,7 +10,15 @@ export interface DeviceModel {
   h: number
   /** Hint used by the lock screen overlay. */
   notch?: boolean
+  /** iPhone only: logical screen width in points, and the Dynamic Island size in points. */
+  pt?: number
+  island?: { w: number; h: number }
 }
+
+// Dynamic Island, in points. 14 Pro through 17 Pro share the same ~126 × 37 pt cutout.
+// The 18 Pro and Pro Max are reported to be about 35% narrower (13.5 mm instead of 20.7 mm).
+const ISLAND = { w: 126, h: 37 }
+const ISLAND_18 = { w: 81, h: 37 }
 
 // Resolutions are the native panel sizes. Models sharing a panel share a size.
 export const MACS: DeviceModel[] = [
@@ -25,17 +33,17 @@ export const MACS: DeviceModel[] = [
 
 // Panel sizes confirmed against Apple's spec pages / Wikipedia (Oct 2026).
 export const IPHONES: DeviceModel[] = [
-  { id: 'ip18pm', kind: 'iphone', group: 'iPhone 18', label: '18 Pro Max', w: 1320, h: 2868 },
-  { id: 'ip18p', kind: 'iphone', group: 'iPhone 18', label: '18 Pro', w: 1206, h: 2622 },
-  { id: 'ip17pm', kind: 'iphone', group: 'iPhone 17', label: '17 Pro Max', w: 1320, h: 2868 },
-  { id: 'ip17p', kind: 'iphone', group: 'iPhone 17', label: '17 · 17 Pro', w: 1206, h: 2622 },
-  { id: 'ipair', kind: 'iphone', group: 'iPhone Air', label: 'iPhone Air', w: 1260, h: 2736 },
-  { id: 'ip16pm', kind: 'iphone', group: 'iPhone 16', label: '16 Pro Max', w: 1320, h: 2868 },
-  { id: 'ip16p', kind: 'iphone', group: 'iPhone 16', label: '16 Pro', w: 1206, h: 2622 },
-  { id: 'ip16plus', kind: 'iphone', group: 'iPhone 16', label: '16 Plus', w: 1290, h: 2796 },
-  { id: 'ip16', kind: 'iphone', group: 'iPhone 16', label: '16', w: 1179, h: 2556 },
-  { id: 'ip15pm', kind: 'iphone', group: 'iPhone 15', label: '15 Pro Max · 15 Plus', w: 1290, h: 2796 },
-  { id: 'ip15', kind: 'iphone', group: 'iPhone 15', label: '15 · 15 Pro', w: 1179, h: 2556 },
+  { id: 'ip18pm', kind: 'iphone', group: 'iPhone 18', label: '18 Pro Max', w: 1320, h: 2868, pt: 440, island: ISLAND_18 },
+  { id: 'ip18p', kind: 'iphone', group: 'iPhone 18', label: '18 Pro', w: 1206, h: 2622, pt: 402, island: ISLAND_18 },
+  { id: 'ip17pm', kind: 'iphone', group: 'iPhone 17', label: '17 Pro Max', w: 1320, h: 2868, pt: 440, island: ISLAND },
+  { id: 'ip17p', kind: 'iphone', group: 'iPhone 17', label: '17 · 17 Pro', w: 1206, h: 2622, pt: 402, island: ISLAND },
+  { id: 'ipair', kind: 'iphone', group: 'iPhone Air', label: 'iPhone Air', w: 1260, h: 2736, pt: 420, island: ISLAND },
+  { id: 'ip16pm', kind: 'iphone', group: 'iPhone 16', label: '16 Pro Max', w: 1320, h: 2868, pt: 440, island: ISLAND },
+  { id: 'ip16p', kind: 'iphone', group: 'iPhone 16', label: '16 Pro', w: 1206, h: 2622, pt: 402, island: ISLAND },
+  { id: 'ip16plus', kind: 'iphone', group: 'iPhone 16', label: '16 Plus', w: 1290, h: 2796, pt: 430, island: ISLAND },
+  { id: 'ip16', kind: 'iphone', group: 'iPhone 16', label: '16', w: 1179, h: 2556, pt: 393, island: ISLAND },
+  { id: 'ip15pm', kind: 'iphone', group: 'iPhone 15', label: '15 Pro Max · 15 Plus', w: 1290, h: 2796, pt: 430, island: ISLAND },
+  { id: 'ip15', kind: 'iphone', group: 'iPhone 15', label: '15 · 15 Pro', w: 1179, h: 2556, pt: 393, island: ISLAND },
 ]
 
 export const MODELS: Record<DeviceKind, DeviceModel[]> = { mac: MACS, iphone: IPHONES }
@@ -75,3 +83,6 @@ export function clockZone(kind: DeviceKind, w: number, h: number): Zone {
     ? { x0: 0.12, x1: 0.88, y0: 19 / H, y1: Math.min(1, 56 / H) }
     : { x0: 0.3, x1: 0.7, y0: 6 / H, y1: Math.min(1, 21 / H) }
 }
+
+/** What is drawn over the wallpaper in the preview. */
+export type ScreenView = 'off' | 'lock' | 'alt'
