@@ -29,7 +29,7 @@ export function DropZone({ kind, onKind, onFile, onSample, error }: { kind: Devi
       <button
         type="button"
         onClick={() => input.current?.click()}
-        className="group relative flex w-full flex-col items-center gap-5 rounded-[2rem] border border-dashed border-stone-300 bg-white/60 px-8 py-20 transition hover:border-stone-400 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-stone-900 dark:border-white/15 dark:bg-white/[0.03] dark:hover:border-white/30 dark:hover:bg-white/[0.06] dark:focus-visible:outline-white"
+        className="group relative flex w-full flex-col items-center gap-5 rounded-[2rem] border border-dashed border-stone-300 bg-white/60 px-8 py-20 sm:px-20 transition hover:border-stone-400 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-stone-900 dark:border-white/15 dark:bg-white/[0.03] dark:hover:border-white/30 dark:hover:bg-white/[0.06] dark:focus-visible:outline-white"
       >
         <div className="flex items-end gap-3 text-stone-400 transition group-hover:text-stone-600 dark:text-white/30 dark:group-hover:text-white/60">
           <svg width="76" height="52" viewBox="0 0 76 52" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden className={`transition-opacity duration-200 ${kind === 'mac' ? '' : 'hidden'}`}>
@@ -43,7 +43,7 @@ export function DropZone({ kind, onKind, onFile, onSample, error }: { kind: Devi
         </div>
         <div>
           <h1 className="font-display text-balance text-[2rem] leading-[1.15] font-normal tracking-[-0.01em] sm:text-[2.5rem]">Fit any image to your lock screen</h1>
-          <p className="mt-3 text-base text-stone-500 dark:text-white/55">
+          <p className="mx-auto mt-3 max-w-[25rem] text-base text-balance text-stone-500 dark:text-white/55">
             Drop an image here, click to browse, or paste. Preview it behind the clock on your {kind === 'mac' ? 'Mac' : 'iPhone'}, then export at native resolution.
           </p>
         </div>
