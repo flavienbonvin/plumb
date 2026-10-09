@@ -3,13 +3,13 @@ import { lockTime } from '../lib/format'
 import { AppIcon, Search } from './screens/icons'
 import { PhoneStatusBar } from './screens/PhoneStatusBar'
 
-export function IPhoneHomeOverlay({ pt, island }: { pt?: number; island?: { w: number; h: number } }) {
+export function IPhoneHomeOverlay({ pt, island, notch }: { pt?: number; island?: { w: number; h: number }; notch?: { w: number; h: number } }) {
   const now = useClock()
   const grid = [0, 1, 2, 3, 4, 5, 6, 7, 2, 5] // 10 tiles: two full rows and a partial one, like a real page
   const dock = [3, 6, 0, 4]
   return (
     <div className="pointer-events-none absolute inset-0 text-white" style={{ containerType: 'inline-size' }} aria-hidden>
-      <PhoneStatusBar time={lockTime(now)} pt={pt} island={island} />
+      <PhoneStatusBar time={lockTime(now)} pt={pt} island={island} notch={notch} />
       <div className="absolute inset-x-0 top-[19cqw] grid grid-cols-4 gap-y-[5.2cqw] px-[7.8cqw]">
         {grid.map((n, i) => (
           <div key={i} className="flex flex-col items-center gap-[1.8cqw]">

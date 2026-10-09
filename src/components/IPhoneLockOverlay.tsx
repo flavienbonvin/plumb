@@ -6,11 +6,11 @@ import { PhoneStatusBar } from './screens/PhoneStatusBar'
 const glass =
   'grid h-[12.7cqw] w-[12.7cqw] place-items-center rounded-full bg-black/25 text-white ring-1 ring-white/20 backdrop-blur-2xl shadow-[0_1cqw_3cqw_rgba(0,0,0,.18)]'
 
-export function IPhoneLockOverlay({ pt, island }: { pt?: number; island?: { w: number; h: number } }) {
+export function IPhoneLockOverlay({ pt, island, notch }: { pt?: number; island?: { w: number; h: number }; notch?: { w: number; h: number } }) {
   const now = useClock()
   return (
     <div className="pointer-events-none absolute inset-0 text-white" style={{ containerType: 'inline-size' }} aria-hidden>
-      <PhoneStatusBar pt={pt} island={island} />
+      <PhoneStatusBar pt={pt} island={island} notch={notch} />
       <Padlock className="absolute top-[15.6cqw] left-1/2 h-[4cqw] -translate-x-1/2 opacity-90 drop-shadow-[0_1px_6px_rgba(0,0,0,.25)]" />
       <div className="absolute inset-x-0 top-[22cqw] text-center drop-shadow-[0_0.4cqw_2cqw_rgba(0,0,0,.2)]">
         <div className="text-[5.5cqw] leading-none font-semibold opacity-90">{lockDate(now)}</div>

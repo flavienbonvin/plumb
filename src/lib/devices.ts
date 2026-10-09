@@ -13,12 +13,16 @@ export interface DeviceModel {
   /** iPhone only: logical screen width in points, and the Dynamic Island size in points. */
   pt?: number
   island?: { w: number; h: number }
+  /** iPhone only: older-style notch (16e, 17e) instead of a Dynamic Island, in points. */
+  notchPt?: { w: number; h: number }
 }
 
 // Dynamic Island, in points. 14 Pro through 17 Pro share the same ~126 × 37 pt cutout.
 // The 18 Pro and Pro Max are reported to be about 35% narrower (13.5 mm instead of 20.7 mm).
 const ISLAND = { w: 126, h: 37 }
 const ISLAND_18 = { w: 81, h: 37 }
+// The 16e and 17e keep the thinner notch of the iPhone 13 and 14 (about 162 × 31 pt).
+const NOTCH = { w: 162, h: 31 }
 
 // Resolutions are the native panel sizes. Models sharing a panel share a size.
 export const MACS: DeviceModel[] = [
@@ -42,6 +46,7 @@ export const IPHONES: DeviceModel[] = [
   { id: 'ip16p', kind: 'iphone', group: 'iPhone 16', label: '16 Pro', w: 1206, h: 2622, pt: 402, island: ISLAND },
   { id: 'ip16plus', kind: 'iphone', group: 'iPhone 16', label: '16 Plus', w: 1290, h: 2796, pt: 430, island: ISLAND },
   { id: 'ip16', kind: 'iphone', group: 'iPhone 16', label: '16', w: 1179, h: 2556, pt: 393, island: ISLAND },
+  { id: 'ip17e', kind: 'iphone', group: 'iPhone e', label: '17e · 16e', w: 1170, h: 2532, pt: 390, notchPt: NOTCH },
   { id: 'ip15pm', kind: 'iphone', group: 'iPhone 15', label: '15 Pro Max · 15 Plus', w: 1290, h: 2796, pt: 430, island: ISLAND },
   { id: 'ip15', kind: 'iphone', group: 'iPhone 15', label: '15 · 15 Pro', w: 1179, h: 2556, pt: 393, island: ISLAND },
 ]
