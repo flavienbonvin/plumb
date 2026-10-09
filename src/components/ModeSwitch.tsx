@@ -1,3 +1,4 @@
+import { radioKeys } from '../lib/a11y'
 export type Mode = 'mac' | 'iphone' | 'both'
 
 const opts: { id: Mode; label: string }[] = [
@@ -8,7 +9,7 @@ const opts: { id: Mode; label: string }[] = [
 
 export function ModeSwitch({ value, onChange }: { value: Mode; onChange: (m: Mode) => void }) {
   return (
-    <div role="radiogroup" aria-label="Device" className="inline-flex rounded-full border border-stone-200 bg-white/70 p-0.5 dark:border-white/10 dark:bg-white/5">
+    <div role="radiogroup" onKeyDown={radioKeys} aria-label="Device" className="inline-flex rounded-full border border-stone-200 bg-white/70 p-0.5 dark:border-white/10 dark:bg-white/5">
       {opts.map((o) => (
         <button
           key={o.id}

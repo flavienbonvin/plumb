@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { radioKeys } from '../lib/a11y'
 import { LOOKS, applyGrade, findLook, type Finish } from '../lib/looks'
 
 const W = 132
@@ -33,7 +34,7 @@ export function LookStrip({ image, finish, onChange }: Props) {
         <h3 className="text-sm font-semibold">Look</h3>
         <span className="text-xs text-stone-400 dark:text-white/40">Fujifilm-inspired</span>
       </div>
-      <div role="radiogroup" aria-label="Look" className="mt-2 grid grid-cols-4 gap-2">
+      <div role="radiogroup" onKeyDown={radioKeys} aria-label="Look" className="mt-2 grid grid-cols-4 gap-2">
         {LOOKS.map((l) => {
           const on = finish.look === l.id
           return (

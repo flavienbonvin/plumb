@@ -11,3 +11,11 @@ html.dark { color-scheme: dark; }
 body { @apply bg-stone-100 text-stone-900 antialiased dark:bg-neutral-950 dark:text-stone-100; font-family: var(--font-sans); }
 
 input[type="range"] { accent-color: currentColor; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

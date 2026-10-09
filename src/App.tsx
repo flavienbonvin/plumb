@@ -228,8 +228,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen">
-      <header className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 sm:px-8 sm:py-4">
-        <span className="flex shrink-0 items-center gap-2 font-display text-base font-semibold tracking-tight">
+      <header className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-x-3 gap-y-3 px-4 py-3 sm:px-8 sm:py-4">
+        <span className="order-1 flex shrink-0 items-center gap-2 font-display text-base font-semibold tracking-tight">
           <svg viewBox="0 0 64 64" className="h-6 w-6" aria-hidden>
             <rect width="64" height="64" rx="15" className="fill-stone-900 dark:fill-stone-100" />
             <line x1="32" y1="9" x2="32" y2="37" strokeWidth="2.6" strokeLinecap="round" className="stroke-white dark:stroke-stone-900" />
@@ -237,9 +237,8 @@ export default function App() {
           </svg>
           Plumb
         </span>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          {image && (
-            <>
+        {image && (
+          <div className="order-3 flex w-full items-center gap-2 sm:order-2 sm:ml-auto sm:w-auto sm:gap-3">
               <button type="button" className={iconBtn} onClick={hist.undo} disabled={!hist.canUndo} aria-label="Undo" title="Undo (⌘Z)">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 14 4 9l5-5" /><path d="M4 9h10a6 6 0 0 1 0 12h-3" /></svg>
               </button>
@@ -247,8 +246,9 @@ export default function App() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 14 5-5-5-5" /><path d="M20 9H10a6 6 0 0 0 0 12h3" /></svg>
               </button>
               <ModeSwitch value={mode} onChange={setMode} />
-            </>
-          )}
+          </div>
+        )}
+        <div className="order-2 ml-auto sm:order-3 sm:ml-0">
           <ThemeToggle value={theme} onChange={setTheme} />
         </div>
       </header>
@@ -263,6 +263,7 @@ export default function App() {
         </main>
       ) : (
         <main className="mx-auto max-w-[1500px] px-4 pb-32 sm:px-8 lg:pb-16">
+          <h1 className="sr-only">Wallpaper preview and export</h1>
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <p className="min-w-0 truncate text-sm text-stone-500 dark:text-white/50">
               {image.name} · {image.bitmap.width}×{image.bitmap.height}
@@ -270,12 +271,12 @@ export default function App() {
                 Change
                 <input type="file" accept="image/*,.heic,.heif" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) open(f); e.target.value = '' }} />
               </label>
-              <button type="button" onClick={clear} className="ml-3 underline-offset-2 hover:underline">Remove</button>
+              <button type="button" onClick={clear} className="-my-1.5 ml-3 py-1.5 underline-offset-2 hover:underline">Remove</button>
             </p>
             <div className="hidden items-center gap-3 lg:flex">
               <label className="flex items-center gap-2 text-xs text-stone-500 dark:text-white/50">
                 Format
-                <select value={format} onChange={(e) => setFormat(e.target.value as Format)} className="rounded-lg border border-stone-200 bg-white px-2 py-1 text-sm text-stone-900 dark:border-white/10 dark:bg-neutral-900 dark:text-white">
+                <select name="format" value={format} onChange={(e) => setFormat(e.target.value as Format)} className="rounded-lg border border-stone-200 bg-white px-2 py-1 text-sm text-stone-900 dark:border-white/10 dark:bg-neutral-900 dark:text-white">
                   <option value="png">PNG</option>
                   <option value="jpeg">JPEG</option>
                 </select>
@@ -331,7 +332,7 @@ export default function App() {
 
           {/* mobile action bar */}
           <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-stone-200 bg-stone-100/90 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden dark:border-white/10 dark:bg-neutral-950/90">
-            <select aria-label="Format" value={format} onChange={(e) => setFormat(e.target.value as Format)} className="rounded-lg border border-stone-200 bg-white px-2 py-2 text-sm dark:border-white/10 dark:bg-neutral-900">
+            <select aria-label="Format" name="format-mobile" value={format} onChange={(e) => setFormat(e.target.value as Format)} className="rounded-lg border border-stone-200 bg-white px-2 py-2 text-sm dark:border-white/10 dark:bg-neutral-900">
               <option value="png">PNG</option>
               <option value="jpeg">JPEG</option>
             </select>
@@ -341,7 +342,7 @@ export default function App() {
               </button>
             )}
             <button type="button" onClick={() => run(mode === 'both' ? 'both' : mode)} disabled={busy !== null} className={`${primary} flex-1 py-3`}>
-              {busy ? 'Exporting…' : mode === 'both' ? 'Download both' : `Download ${mode === 'mac' ? 'Mac' : 'iPhone'} wallpaper`}
+              {busy ? 'Exporting…' : mode === 'both' ? 'Download both' : `Download ${mode === 'mac' ? 'Mac' : 'iPhone'}`}
             </button>
           </div>
         </main>

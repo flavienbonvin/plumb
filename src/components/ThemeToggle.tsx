@@ -1,3 +1,4 @@
+import { radioKeys } from '../lib/a11y'
 import type { ThemePref } from '../hooks/useTheme'
 
 const opts: { id: ThemePref; label: string; icon: string }[] = [
@@ -8,7 +9,7 @@ const opts: { id: ThemePref; label: string; icon: string }[] = [
 
 export function ThemeToggle({ value, onChange }: { value: ThemePref; onChange: (v: ThemePref) => void }) {
   return (
-    <div role="radiogroup" aria-label="Theme" className="inline-flex rounded-full border border-stone-200 bg-white/70 p-0.5 dark:border-white/10 dark:bg-white/5">
+    <div role="radiogroup" onKeyDown={radioKeys} aria-label="Theme" className="inline-flex rounded-full border border-stone-200 bg-white/70 p-0.5 dark:border-white/10 dark:bg-white/5">
       {opts.map((o) => (
         <button
           key={o.id}

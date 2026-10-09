@@ -1,3 +1,4 @@
+import { radioKeys } from '../lib/a11y'
 import { LookStrip } from './LookStrip'
 import { DEFAULT_ADJUST, DEFAULT_FINISH, hasFinish, type Finish, FRAME_COLORS, MAT_COLORS, MAX_ZOOM, type DeviceSettings, type FrameSettings, type Swatch } from '../lib/draw'
 import { useEffect, useState } from 'react'
@@ -60,14 +61,14 @@ function Slider({ label, value, min, max, step, onChange, format }: { label: str
         <span className={field}>{label}</span>
         <span className="text-xs tabular-nums text-stone-400 dark:text-white/40">{format(value)}</span>
       </span>
-      <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} className="mt-1 w-full" />
+      <input type="range" name={label.toLowerCase().replace(/\s+/g, "-")} min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} className="mt-0.5 h-6 w-full" />
     </label>
   )
 }
 
 function Swatches({ label, list, value, onChange, autoPreview }: { label: string; list: Swatch[]; value: string; onChange: (id: string) => void; autoPreview?: boolean }) {
   return (
-    <div role="radiogroup" aria-label={label}>
+    <div role="radiogroup" onKeyDown={radioKeys} aria-label={label}>
       <div className={field}>{label}</div>
       <div className="mt-1.5 flex flex-wrap gap-2">
         {list.map((s) => {
@@ -145,9 +146,9 @@ export function Controls({ kind, image, modelId, model, custom, onCustom, settin
         </select>
         {modelId === CUSTOM_ID && (
           <div className="mt-2 flex items-center gap-2 text-sm">
-            <input aria-label="Width in pixels" type="number" inputMode="numeric" min={64} max={8192} value={custom.w || ''} onChange={(e) => onCustom({ ...custom, w: Number(e.target.value) })} className={`${select} tabular-nums`} />
+            <input aria-label="Width in pixels" name="custom-width" type="number" inputMode="numeric" min={64} max={8192} value={custom.w || ''} onChange={(e) => onCustom({ ...custom, w: Number(e.target.value) })} className={`${select} tabular-nums`} />
             <span className="text-stone-400">×</span>
-            <input aria-label="Height in pixels" type="number" inputMode="numeric" min={64} max={8192} value={custom.h || ''} onChange={(e) => onCustom({ ...custom, h: Number(e.target.value) })} className={`${select} tabular-nums`} />
+            <input aria-label="Height in pixels" name="custom-height" type="number" inputMode="numeric" min={64} max={8192} value={custom.h || ''} onChange={(e) => onCustom({ ...custom, h: Number(e.target.value) })} className={`${select} tabular-nums`} />
             <span className="text-xs text-stone-400">px</span>
           </div>
         )}
@@ -155,7 +156,7 @@ export function Controls({ kind, image, modelId, model, custom, onCustom, settin
 
       <div className="space-y-3">
         <Slider label="Zoom" value={adjust.zoom} min={1} max={MAX_ZOOM} step={0.01} onChange={(zoom) => onSettings({ ...settings, adjust: { ...adjust, zoom } })} format={(v) => `${Math.round(v * 100)}%`} />
-        <button type="button" onClick={() => onSettings({ ...settings, adjust: DEFAULT_ADJUST })} className="text-xs font-medium text-stone-500 underline-offset-2 hover:underline dark:text-white/50">
+        <button type="button" onClick={() => onSettings({ ...settings, adjust: DEFAULT_ADJUST })} className="-my-1 py-1.5 text-xs font-medium text-stone-500 underline-offset-2 hover:underline dark:text-white/50">
           Reset position
         </button>
       </div>
@@ -169,7 +170,7 @@ export function Controls({ kind, image, modelId, model, custom, onCustom, settin
         <Slider label="Grain" value={settings.finish.grain} min={0} max={1} step={0.05} onChange={(grain) => setFinish({ grain })} format={pct} />
         <Slider label="Vignette" value={settings.finish.vignette} min={0} max={1} step={0.05} onChange={(vignette) => setFinish({ vignette })} format={pct} />
         {hasFinish(settings.finish) && (
-          <button type="button" onClick={() => onFinish(DEFAULT_FINISH)} className="text-xs font-medium text-stone-500 underline-offset-2 hover:underline dark:text-white/50">
+          <button type="button" onClick={() => onFinish(DEFAULT_FINISH)} className="-my-1 py-1.5 text-xs font-medium text-stone-500 underline-offset-2 hover:underline dark:text-white/50">
             Remove look
           </button>
         )}
@@ -178,7 +179,7 @@ export function Controls({ kind, image, modelId, model, custom, onCustom, settin
       <div className="divide-y divide-stone-200 dark:divide-white/10">
         <div className="py-3">
           <div className={field}>Preview</div>
-          <div role="radiogroup" aria-label="Preview" className="mt-1.5 grid grid-cols-3 gap-1 rounded-xl bg-stone-100 p-1 dark:bg-white/[0.06]">
+          <div role="radiogroup" onKeyDown={radioKeys} aria-label="Preview" className="mt-1.5 grid grid-cols-3 gap-1 rounded-xl bg-stone-100 p-1 dark:bg-white/[0.06]">
             {([['lock', 'Lock screen'], ['alt', kind === 'mac' ? 'Desktop' : 'Home screen'], ['off', 'Plain']] as [ScreenView, string][]).map(([id, label]) => (
               <button
                 key={id}
