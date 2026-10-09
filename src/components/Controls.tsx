@@ -1,4 +1,5 @@
 import { DEFAULT_ADJUST, FRAME_COLORS, MAT_COLORS, MAX_ZOOM, type DeviceSettings, type FrameSettings, type Swatch } from '../lib/draw'
+import { useEffect, useState } from 'react'
 import type { Legibility } from '../lib/legibility'
 import { CUSTOM_ID, groupModels, type CustomSize, type DeviceKind, type DeviceModel } from '../lib/devices'
 
@@ -17,6 +18,9 @@ interface Props {
   onSettings: (s: DeviceSettings) => void
   onOverlay: (v: boolean) => void
   onDownload: () => void
+  /** Present only when the browser can open the system share sheet. */
+  onShare?: () => void
+  exported: boolean
 }
 
 const field = 'text-xs font-medium text-stone-500 dark:text-white/50'
@@ -82,7 +86,34 @@ function Swatches({ label, list, value, onChange, autoPreview }: { label: string
   )
 }
 
-export function Controls({ kind, modelId, model, custom, onCustom, settings, overlay, busy, upscale, legibility, onModel, onSettings, onOverlay, onDownload }: Props) {
+function HowTo({ kind, exported, shared }: { kind: DeviceKind; exported: boolean; shared: boolean }) {
+  const [open, setOpen] = useState(false)
+  useEffect(() => { if (exported) setOpen(true) }, [exported])
+  const steps =
+    kind === 'iphone'
+      ? [
+          shared ? 'In the share sheet, choose Save Image (or AirDrop it to your phone).' : 'Get the file onto your iPhone: AirDrop it, or save it to iCloud Drive.',
+          'Open Photos and select the image.',
+          'Tap Share, then Use as Wallpaper, and pick Lock Screen.',
+        ]
+      : [
+          'Open System Settings, then Wallpaper.',
+          'Choose Add Photo… and select the file. Or right-click it in Finder and pick Set Desktop Picture.',
+          'The Mac lock screen shows your desktop picture, so it is set for both.',
+        ]
+  return (
+    <details open={open} onToggle={(e) => setOpen(e.currentTarget.open)} className="group mt-4 text-sm">
+      <summary className="cursor-pointer list-none text-xs font-medium text-stone-500 underline-offset-2 hover:underline dark:text-white/50">
+        How to set it as your wallpaper
+      </summary>
+      <ol className="mt-2 list-decimal space-y-1 pl-5 text-stone-600 dark:text-white/60">
+        {steps.map((t) => <li key={t}>{t}</li>)}
+      </ol>
+    </details>
+  )
+}
+
+export function Controls({ kind, modelId, model, custom, onCustom, settings, overlay, busy, upscale, legibility, onModel, onSettings, onOverlay, onDownload, onShare, exported }: Props) {
   const { adjust, frame } = settings
   const setFrame = (p: Partial<FrameSettings>) => onSettings({ ...settings, frame: { ...frame, ...p } })
 
@@ -160,11 +191,22 @@ export function Controls({ kind, modelId, model, custom, onCustom, settings, ove
         >
           {busy ? 'Exporting…' : `Download ${kind === 'mac' ? 'Mac' : 'iPhone'} · ${model.w}×${model.h}`}
         </button>
+        {onShare && (
+          <button
+            type="button"
+            onClick={onShare}
+            disabled={busy}
+            className="mt-2 w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm font-medium transition hover:bg-stone-100 disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900 dark:border-white/20 dark:hover:bg-white/10 dark:focus-visible:outline-white"
+          >
+            {kind === 'iphone' ? 'Share · AirDrop or Save to Photos' : 'Share · AirDrop'}
+          </button>
+        )}
         {upscale && upscale > 1.05 && (
           <p role="status" className="mt-2 text-xs text-amber-600 dark:text-amber-400">
             The image is smaller than this screen and will be upscaled {upscale.toFixed(1)}×. It may look soft.
           </p>
         )}
+        <HowTo kind={kind} exported={exported} shared={!!onShare} />
       </div>
     </div>
   )

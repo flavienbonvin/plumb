@@ -8,7 +8,7 @@ import { useHistory } from './hooks/useHistory'
 import { useTheme } from './hooks/useTheme'
 import { DEFAULT_ADJUST, DEFAULT_FRAME, type DeviceSettings } from './lib/draw'
 import { DEFAULT_MODEL, MODELS, CUSTOM_ID, resolveModel, type CustomSize, type DeviceKind } from './lib/devices'
-import { download, filename, renderBlob, sleep, upscaleFactor, type Format } from './lib/export'
+import { canShareFiles, download, filename, renderBlob, shareFiles, sleep, upscaleFactor, type Format } from './lib/export'
 import type { Legibility } from './lib/legibility'
 import { closeImage, imageFromDataTransfer, loadImageFile, type LoadedImage } from './lib/image'
 import { sampleFile, type Sample } from './lib/samples'
@@ -62,6 +62,8 @@ export default function App() {
   const [format, setFormat] = useState<Format>(saved.format ?? 'png')
   const [busy, setBusy] = useState<DeviceKind | 'both' | null>(null)
   const [dragging, setDragging] = useState(false)
+  const [exported, setExported] = useState<Record<DeviceKind, boolean>>({ mac: false, iphone: false })
+  const [canShare] = useState(canShareFiles)
   const [legibility, setLegibility] = useState<Record<DeviceKind, Legibility | null>>({ mac: null, iphone: null })
 
   const open = useCallback(async (file: Blob & { name?: string }, opts: { restore?: boolean } = {}) => {
@@ -74,6 +76,7 @@ export default function App() {
       })
       if (!opts.restore) {
         hist.reset(initialDevices())
+        setExported({ mac: false, iphone: false })
         saveImage({ blob: img.file, name: (file as File).name ?? img.name })
       }
     } catch (e) {
@@ -149,20 +152,27 @@ export default function App() {
 
   const patch = (k: DeviceKind, p: Partial<DeviceState>) => hist.set((d) => ({ ...d, [k]: { ...d[k], ...p } }))
 
-  const exportOne = async (k: DeviceKind) => {
-    if (!image) return
+  const renderFile = async (k: DeviceKind) => {
     const d = devices[k]
-    const blob = await renderBlob(image.bitmap, resolveModel(k, d.modelId, d.custom), d.settings, format)
-    download(blob, filename(image.name, k, format))
+    const blob = await renderBlob(image!.bitmap, resolveModel(k, d.modelId, d.custom), d.settings, format)
+    return new File([blob], filename(image!.name, k, format), { type: blob.type })
   }
-  const run = async (which: DeviceKind | 'both') => {
+  const run = async (which: DeviceKind | 'both', share = false) => {
+    if (!image) return
     setBusy(which)
     try {
-      if (which === 'both') {
-        await exportOne('mac')
-        await sleep(400)
-        await exportOne('iphone')
-      } else await exportOne(which)
+      const kinds: DeviceKind[] = which === 'both' ? ['mac', 'iphone'] : [which]
+      if (share) {
+        const files = await Promise.all(kinds.map(renderFile))
+        if (!(await shareFiles(files))) return
+      } else {
+        for (const [i, k] of kinds.entries()) {
+          if (i) await sleep(400)
+          const f = await renderFile(k)
+          download(f, f.name)
+        }
+      }
+      setExported((e) => ({ ...e, ...Object.fromEntries(kinds.map((k) => [k, true])) }))
       setError(null)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Export failed.')
@@ -259,6 +269,8 @@ export default function App() {
                       onSettings={(settings) => patch(k, { settings })}
                       onOverlay={(overlay) => patch(k, { overlay })}
                       onDownload={() => run(k)}
+                      onShare={canShare ? () => run(k, true) : undefined}
+                      exported={exported[k]}
                     />
                   </div>
                 </section>
@@ -272,6 +284,11 @@ export default function App() {
               <option value="png">PNG</option>
               <option value="jpeg">JPEG</option>
             </select>
+            {canShare && (
+              <button type="button" onClick={() => run(mode === 'both' ? 'both' : mode, true)} disabled={busy !== null} className="rounded-full border border-stone-300 px-5 py-3 text-sm font-medium dark:border-white/20">
+                Share
+              </button>
+            )}
             <button type="button" onClick={() => run(mode === 'both' ? 'both' : mode)} disabled={busy !== null} className={`${primary} flex-1 py-3`}>
               {busy ? 'Exporting…' : mode === 'both' ? 'Download both' : `Download ${mode === 'mac' ? 'Mac' : 'iPhone'} wallpaper`}
             </button>

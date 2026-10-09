@@ -39,3 +39,24 @@ export function upscaleFactor(img: Source, model: DeviceModel, s: DeviceSettings
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 export { sleep }
+
+/** True when the browser can hand image files to the system share sheet (AirDrop, Save to Photos…). */
+export function canShareFiles(): boolean {
+  try {
+    if (typeof navigator === 'undefined' || !navigator.share || !navigator.canShare) return false
+    return navigator.canShare({ files: [new File([new Blob(['x'])], 'x.png', { type: 'image/png' })] })
+  } catch {
+    return false
+  }
+}
+
+/** Opens the share sheet. Resolves false if the user dismissed it. */
+export async function shareFiles(files: File[]): Promise<boolean> {
+  try {
+    await navigator.share({ files, title: 'Wallpaper' })
+    return true
+  } catch (e) {
+    if (e instanceof DOMException && e.name === 'AbortError') return false
+    throw e
+  }
+}
