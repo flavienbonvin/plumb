@@ -29,7 +29,7 @@ export const IPHONES: DeviceModel[] = [
   { id: 'ip18p', kind: 'iphone', group: 'iPhone 18', label: '18 Pro', w: 1206, h: 2622 },
   { id: 'ip17pm', kind: 'iphone', group: 'iPhone 17', label: '17 Pro Max', w: 1320, h: 2868 },
   { id: 'ip17p', kind: 'iphone', group: 'iPhone 17', label: '17 · 17 Pro', w: 1206, h: 2622 },
-  { id: 'ip17air', kind: 'iphone', group: 'iPhone 17', label: '17 Air', w: 1260, h: 2736 },
+  { id: 'ipair', kind: 'iphone', group: 'iPhone Air', label: 'iPhone Air', w: 1260, h: 2736 },
   { id: 'ip16pm', kind: 'iphone', group: 'iPhone 16', label: '16 Pro Max', w: 1320, h: 2868 },
   { id: 'ip16p', kind: 'iphone', group: 'iPhone 16', label: '16 Pro', w: 1206, h: 2622 },
   { id: 'ip16plus', kind: 'iphone', group: 'iPhone 16', label: '16 Plus', w: 1290, h: 2796 },
