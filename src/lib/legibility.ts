@@ -11,7 +11,9 @@ let scratch: HTMLCanvasElement | null = null
 
 /**
  * How readable white lock screen text is over the given zone of a rendered wallpaper.
- * Looks at the share of pixels where white text would drop under a 3:1 contrast ratio.
+ * Looks at the share of pixels where white text would drop under a 2.3:1 contrast ratio. That is
+ * deliberately lenient: the clock has a soft shadow and is large and heavy, so it stays readable
+ * at lower contrast than body text would.
  */
 export function measureLegibility(src: HTMLCanvasElement, z: Zone): Legibility {
   const sx = z.x0 * src.width
@@ -28,10 +30,10 @@ export function measureLegibility(src: HTMLCanvasElement, z: Zone): Legibility {
   const n = d.length / 4
   for (let i = 0; i < d.length; i += 4) {
     const L = 0.2126 * lin(d[i]) + 0.7152 * lin(d[i + 1]) + 0.0722 * lin(d[i + 2])
-    if (1.05 / (L + 0.05) < 3) bright++
+    if (1.05 / (L + 0.05) < 2.3) bright++
   }
   const p = bright / n
-  return p > 0.45 ? 'poor' : p > 0.15 ? 'fair' : 'good'
+  return p > 0.6 ? 'poor' : p > 0.3 ? 'fair' : 'good'
 }
 
 /** True when the zone is bright enough that dark text reads better (macOS flips its menu bar the same way). */
