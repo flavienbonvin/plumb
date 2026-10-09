@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Finish } from '../lib/draw'
 import type { DeviceKind, DeviceModel } from '../lib/devices'
 import type { Format } from '../lib/export'
@@ -12,7 +12,7 @@ import { PreviewSwitch } from './PreviewSwitch'
 import { StepPanel, type StepDir } from './StepPanel'
 import { Stepper, STEPS } from './Stepper'
 import { StyleStep } from './StyleStep'
-import { btnSecondary } from './ui'
+import { btnPrimary, btnSecondary } from './ui'
 
 interface Props {
   kind: DeviceKind
@@ -40,9 +40,6 @@ interface Props {
   onCreateOther: () => void
 }
 
-const primaryBtn =
-  'inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-stone-700 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900 dark:bg-white dark:text-stone-900 dark:hover:bg-stone-200 dark:focus-visible:outline-white'
-
 export function Wizard(p: Props) {
   const { kind, step, d, model, image } = p
   const i = STEPS.findIndex((s) => s.id === step)
@@ -52,6 +49,14 @@ export function Wizard(p: Props) {
   const [nav, setNav] = useState<{ step: Step; dir: StepDir }>({ step, dir: 'none' })
   if (nav.step !== step) setNav({ step, dir: i > STEPS.findIndex((s) => s.id === nav.step) ? 'fwd' : 'back' })
   const dir = nav.step === step ? nav.dir : 'none'
+  // Move focus to the new step's heading so keyboard and screen reader users land in the right place.
+  const shown = useRef(step)
+  useEffect(() => {
+    if (shown.current === step) return
+    shown.current = step
+    document.getElementById('step-title')?.focus({ preventScroll: true })
+  }, [step])
+  const announce = `Step ${i + 1} of ${STEPS.length}: ${STEPS[i].label}. ${kind === 'mac' ? 'Mac' : 'iPhone'} wallpaper.`
   const setSettings = (settings: typeof d.settings) => p.onPatch({ settings })
 
   const footer: ReactNode = (
@@ -62,7 +67,7 @@ export function Wizard(p: Props) {
           {p.busy ? 'Exporting…' : p.saved ? 'Saved ✓' : 'Download'}
         </button>
       )}
-      {next && <button type="button" onClick={() => p.onStep(next.id)} className={`${primaryBtn} ml-auto`}>Next: {next.label}</button>}
+      {next && <button type="button" onClick={() => p.onStep(next.id)} className={`${btnPrimary} ml-auto`}>Next: {next.label}</button>}
     </>
   )
 
@@ -76,6 +81,7 @@ export function Wizard(p: Props) {
       </div>
 
       <div className="min-w-0 space-y-4">
+        <p role="status" aria-live="polite" className="sr-only">{announce}</p>
         <Stepper step={step} onStep={p.onStep} />
         {step === 'place' && (
           <StepPanel dir={dir} title="Place" hint="Pick the device, then zoom and move the image." footer={footer}>

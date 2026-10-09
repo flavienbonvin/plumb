@@ -224,7 +224,7 @@ export default function App() {
           )}
         </main>
       ) : (
-        <main data-step={step} className="mx-auto max-w-[1500px] px-4 pb-28 sm:px-8 lg:pb-16">
+        <main className="mx-auto max-w-[1500px] px-4 pb-28 sm:px-8 lg:pb-16">
           <h1 className="sr-only">Wallpaper preview and export</h1>
           {error && <p role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
           <Wizard
