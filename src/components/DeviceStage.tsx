@@ -105,14 +105,41 @@ export function DeviceStage({ model, image, settings, view, blur, onChange, onLe
   const key = `absolute w-[3px] ${metal} ring-1 ring-black/10 dark:ring-white/10`
 
   return mac ? (
-    <div className="w-full max-w-[760px]">
-      <div className="rounded-[20px] bg-gradient-to-b from-stone-300 to-stone-400 p-[10px] shadow-2xl shadow-black/25 ring-1 ring-black/10 dark:from-neutral-700 dark:to-neutral-800 dark:ring-white/10 sm:p-[12px]">
-        <div className="rounded-[14px] bg-black p-[6px] sm:rounded-[16px]">{screen}</div>
+    <div className="relative w-full max-w-[760px] pb-5">
+      {/* lid: a hairline of brushed aluminium around a black glass bezel */}
+      <div
+        className="relative rounded-[16px] p-[1.5px] shadow-[0_1px_0_rgba(255,255,255,.6)_inset] ring-1 ring-black/25 dark:ring-black/60"
+        style={{ background: 'linear-gradient(180deg,#e9e9ec 0%,#c5c6cb 35%,#a9aab0 100%)' }}
+      >
+        <div className="relative rounded-[14.5px] bg-[#0a0a0b] p-[7px] sm:p-[10px]" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.07), inset 0 0 14px rgba(0,0,0,.9)' }}>
+          {/* camera */}
+          <span aria-hidden className="absolute top-[2.5px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-[#1d2330] ring-1 ring-white/10 sm:top-[3.5px]" />
+          {screen}
+          {/* glass reflection */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-[7px] rounded-[10px] sm:inset-[10px] sm:rounded-[14px]"
+            style={{ background: 'linear-gradient(115deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 28%, rgba(255,255,255,0) 62%, rgba(255,255,255,.04) 100%)' }}
+          />
+        </div>
       </div>
-      {/* hinge and base */}
-      <div className="relative -mx-[3.5%] h-[12px] rounded-b-[18px] rounded-t-[2px] bg-gradient-to-b from-stone-400 via-stone-300 to-stone-400 shadow-[0_18px_30px_-12px_rgba(0,0,0,.35)] ring-1 ring-black/10 dark:from-neutral-800 dark:via-neutral-700 dark:to-neutral-800 dark:ring-white/10">
-        <span className="absolute top-0 left-1/2 h-[4px] w-[16%] -translate-x-1/2 rounded-b-md bg-black/15" />
+      {/* base seen from the front: wider than the lid, with the thumb notch and a rounded lip */}
+      <div
+        className="relative -mx-[5%] h-[13px] sm:h-[15px]"
+        style={{
+          background: 'linear-gradient(180deg,#8d8e94 0%,#d6d7db 18%,#c4c5ca 55%,#9a9ba1 100%)',
+          borderRadius: '0 0 22px 22px / 0 0 12px 12px',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(0,0,0,.25), 0 1px 0 rgba(0,0,0,.2)',
+        }}
+      >
+        <span
+          aria-hidden
+          className="absolute top-0 left-1/2 h-[5px] w-[15%] -translate-x-1/2 rounded-b-[10px]"
+          style={{ background: 'linear-gradient(180deg,#6f7076 0%,#a9aaaf 100%)', boxShadow: 'inset 0 1px 1px rgba(0,0,0,.35)' }}
+        />
       </div>
+      {/* soft contact shadow on the surface below */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-[-4%] bottom-[8px] h-[18px] rounded-[50%] bg-black/35 blur-xl dark:bg-black/70" />
     </div>
   ) : (
     <div className="relative w-[min(100%,290px)]">
