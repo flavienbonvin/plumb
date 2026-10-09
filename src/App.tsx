@@ -229,7 +229,14 @@ export default function App() {
   return (
     <div className="min-h-screen">
       <header className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 sm:px-8 sm:py-4">
-        <span className="shrink-0 font-display text-base font-semibold tracking-tight">Plumb</span>
+        <span className="flex shrink-0 items-center gap-2 font-display text-base font-semibold tracking-tight">
+          <svg viewBox="0 0 64 64" className="h-6 w-6" aria-hidden>
+            <rect width="64" height="64" rx="15" className="fill-stone-900 dark:fill-stone-100" />
+            <line x1="32" y1="9" x2="32" y2="37" strokeWidth="2.6" strokeLinecap="round" className="stroke-white dark:stroke-stone-900" />
+            <path d="M32 56 24 44.500a9.200 9.200 0 1 1 16 0z" className="fill-white dark:fill-stone-900" />
+          </svg>
+          Plumb
+        </span>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {image && (
             <>

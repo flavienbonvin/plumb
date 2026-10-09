@@ -54,7 +54,19 @@ export function DropZone({ onFile, onSample, error }: { onFile: (f: File) => voi
           {SAMPLES.map((s) => <Thumb key={s.id} sample={s} onPick={onSample} />)}
         </div>
       </div>
-      <p className="mt-6 text-xs text-stone-400 dark:text-white/35">Everything stays in your browser. Nothing is uploaded.</p>
+      <ul className="mt-12 grid w-full gap-6 text-left sm:grid-cols-3">
+        {[
+          ['See it before you set it', 'Live lock screen, desktop and home screen previews for recent Macs and iPhones.'],
+          ['Frame it, give it a look', 'Gallery frames with a paper mat, and film looks inspired by Fujifilm.'],
+          ['Export it exactly', 'Native resolution in Display P3, one file for each device.'],
+        ].map(([title, text]) => (
+          <li key={title}>
+            <h2 className="text-sm font-semibold">{title}</h2>
+            <p className="mt-1 text-sm text-stone-500 dark:text-white/50">{text}</p>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-10 text-xs text-stone-400 dark:text-white/35">Everything stays in your browser. Nothing is uploaded.</p>
       <input
         ref={input}
         type="file"

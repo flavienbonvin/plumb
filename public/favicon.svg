@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .bg { fill: #141414 } .fg { stroke: #fff } .bob { fill: #fff }
+    @media (prefers-color-scheme: dark) { .bg { fill: #f4f2ee } .fg { stroke: #141414 } .bob { fill: #141414 } }
+  </style>
+  <rect class="bg" width="64" height="64" rx="15"/>
+  <line class="fg" x1="32" y1="9" x2="32" y2="37" stroke-width="2.6" stroke-linecap="round"/>
+  <path class="bob" d="M32 56 24 44.500a9.200 9.200 0 1 1 16 0z"/>
+</svg>
