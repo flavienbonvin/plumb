@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { usePanZoom } from '../hooks/usePanZoom'
 import { drawWallpaper, get2dP3, layout, srcSize, type DeviceSettings } from '../lib/draw'
-import type { DeviceModel } from '../lib/devices'
+import { clockZone, type DeviceModel } from '../lib/devices'
+import { measureLegibility, type Legibility } from '../lib/legibility'
 import { IPhoneLockOverlay } from './IPhoneLockOverlay'
 import { MacLockOverlay } from './MacLockOverlay'
 
@@ -11,13 +12,18 @@ interface Props {
   settings: DeviceSettings
   overlay: boolean
   onChange: (s: DeviceSettings) => void
+  onLegibility?: (l: Legibility | null) => void
 }
 
-export function DeviceStage({ model, image, settings, overlay, onChange }: Props) {
+export function DeviceStage({ model, image, settings, overlay, onChange, onLegibility }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const stage = useRef<HTMLDivElement>(null)
   const [snap, setSnap] = useState({ x: false, y: false })
   const mac = model.kind === 'mac'
+  const [level, setLevel] = useState<Legibility | null>(null)
+  const report = useRef(onLegibility)
+  report.current = onLegibility
+  const zone = clockZone(model.kind, model.w, model.h)
 
   // preview resolution: enough for crisp display, much cheaper than native
   const pw = mac ? 1600 : 720
@@ -30,10 +36,13 @@ export function DeviceStage({ model, image, settings, overlay, onChange }: Props
     if (!c) return
     const id = requestAnimationFrame(() => {
       const ctx = get2dP3(c)
-      drawWallpaper(ctx, image, pw, ph, settings)
+      drawWallpaper(ctx, image, pw, ph, settings, model.kind)
+      const l = overlay ? measureLegibility(c, clockZone(model.kind, model.w, model.h)) : null
+      setLevel(l)
+      report.current?.(l)
     })
     return () => cancelAnimationFrame(id)
-  }, [image, settings, pw, ph])
+  }, [image, settings, pw, ph, model.kind, model.w, model.h, overlay])
 
   usePanZoom(stage, {
     adjust: settings.adjust,
@@ -53,7 +62,7 @@ export function DeviceStage({ model, image, settings, overlay, onChange }: Props
       role="application"
       aria-label={label}
       style={{ aspectRatio: `${model.w} / ${model.h}`, touchAction: 'none' }}
-      className={`relative cursor-grab touch-none overflow-hidden bg-black outline-none select-none active:cursor-grabbing ${
+      className={`group relative cursor-grab touch-none overflow-hidden bg-black outline-none select-none active:cursor-grabbing ${
         mac ? 'rounded-[10px] sm:rounded-[14px]' : 'rounded-[13%/6%]'
       }`}
     >
@@ -63,6 +72,15 @@ export function DeviceStage({ model, image, settings, overlay, onChange }: Props
           {snap.x && <div className="absolute inset-y-0 left-1/2 w-px bg-cyan-300 shadow-[0_0_4px_rgba(34,211,238,.9)]" />}
           {snap.y && <div className="absolute inset-x-0 top-1/2 h-px bg-cyan-300 shadow-[0_0_4px_rgba(34,211,238,.9)]" />}
         </div>
+      )}
+      {overlay && (
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute rounded-lg border border-dashed transition-opacity ${
+            level && level !== 'good' ? 'border-amber-300 bg-amber-300/10 opacity-100' : 'border-white/70 opacity-0 group-hover:opacity-100'
+          }`}
+          style={{ left: `${zone.x0 * 100}%`, right: `${(1 - zone.x1) * 100}%`, top: `${zone.y0 * 100}%`, height: `${(zone.y1 - zone.y0) * 100}%` }}
+        />
       )}
       {overlay && (mac ? <MacLockOverlay notch={!!model.notch} /> : <IPhoneLockOverlay />)}
     </div>

@@ -8,7 +8,7 @@ export async function renderBlob(img: Source, model: DeviceModel, s: DeviceSetti
   c.width = model.w
   c.height = model.h
   const ctx = get2dP3(c)
-  drawWallpaper(ctx, img, model.w, model.h, s)
+  drawWallpaper(ctx, img, model.w, model.h, s, model.kind)
   const blob = await new Promise<Blob | null>((res) => c.toBlob(res, `image/${format}`, format === 'jpeg' ? 0.95 : undefined))
   if (!blob) throw new Error('Export failed. The image may be too large for this browser.')
   return blob

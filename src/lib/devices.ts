@@ -63,3 +63,16 @@ export function groupModels(kind: DeviceKind): [string, DeviceModel[]][] {
   for (const m of MODELS[kind]) map.set(m.group, [...(map.get(m.group) ?? []), m])
   return [...map.entries()]
 }
+
+export interface Zone { x0: number; x1: number; y0: number; y1: number }
+
+/**
+ * Where the lock screen clock + date sit, as fractions of the screen.
+ * Mirrors the overlay components (their layout is in container-width units).
+ */
+export function clockZone(kind: DeviceKind, w: number, h: number): Zone {
+  const H = (100 * h) / w // screen height in container-width units
+  return kind === 'iphone'
+    ? { x0: 0.12, x1: 0.88, y0: 19 / H, y1: Math.min(1, 56 / H) }
+    : { x0: 0.3, x1: 0.7, y0: 6 / H, y1: Math.min(1, 21 / H) }
+}

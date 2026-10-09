@@ -9,6 +9,7 @@ import { useTheme } from './hooks/useTheme'
 import { DEFAULT_ADJUST, DEFAULT_FRAME, type DeviceSettings } from './lib/draw'
 import { DEFAULT_MODEL, MODELS, CUSTOM_ID, resolveModel, type CustomSize, type DeviceKind } from './lib/devices'
 import { download, filename, renderBlob, sleep, upscaleFactor, type Format } from './lib/export'
+import type { Legibility } from './lib/legibility'
 import { closeImage, imageFromDataTransfer, loadImageFile, type LoadedImage } from './lib/image'
 import { sampleFile, type Sample } from './lib/samples'
 import { clearSavedImage, loadSavedImage, saveImage } from './lib/store'
@@ -24,7 +25,7 @@ type Devices = Record<DeviceKind, DeviceState>
 const initial = (kind: DeviceKind): DeviceState => ({
   modelId: DEFAULT_MODEL[kind],
   custom: kind === 'mac' ? { w: 2560, h: 1440 } : { w: 1170, h: 2532 },
-  settings: { adjust: DEFAULT_ADJUST, frame: DEFAULT_FRAME },
+  settings: { adjust: DEFAULT_ADJUST, frame: DEFAULT_FRAME, scrim: 0 },
   overlay: true,
 })
 const initialDevices = (): Devices => ({ mac: initial('mac'), iphone: initial('iphone') })
@@ -61,6 +62,7 @@ export default function App() {
   const [format, setFormat] = useState<Format>(saved.format ?? 'png')
   const [busy, setBusy] = useState<DeviceKind | 'both' | null>(null)
   const [dragging, setDragging] = useState(false)
+  const [legibility, setLegibility] = useState<Record<DeviceKind, Legibility | null>>({ mac: null, iphone: null })
 
   const open = useCallback(async (file: Blob & { name?: string }, opts: { restore?: boolean } = {}) => {
     try {
@@ -239,7 +241,7 @@ export default function App() {
               return (
                 <section key={k} aria-label={k === 'mac' ? 'Mac wallpaper' : 'iPhone wallpaper'} className={`flex min-w-0 flex-col items-center gap-6 ${mode !== 'both' ? 'lg:flex-row lg:items-start lg:justify-center' : ''}`}>
                   <div className={`flex w-full justify-center ${mode !== 'both' ? 'lg:w-auto lg:flex-1' : ''}`}>
-                    <DeviceStage model={model} image={image.preview} settings={d.settings} overlay={d.overlay} onChange={(settings) => patch(k, { settings })} />
+                    <DeviceStage model={model} image={image.preview} settings={d.settings} overlay={d.overlay} onChange={(settings) => patch(k, { settings })} onLegibility={(l) => setLegibility((p) => (p[k] === l ? p : { ...p, [k]: l }))} />
                   </div>
                   <div className="w-full max-w-md shrink-0">
                     <Controls
@@ -251,6 +253,7 @@ export default function App() {
                       settings={d.settings}
                       overlay={d.overlay}
                       busy={busy !== null}
+                      legibility={legibility[k]}
                       upscale={upscaleFactor(image.bitmap, model, d.settings)}
                       onModel={(modelId) => patch(k, { modelId })}
                       onSettings={(settings) => patch(k, { settings })}

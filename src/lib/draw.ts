@@ -39,6 +39,8 @@ export interface FrameSettings {
 export interface DeviceSettings {
   adjust: Adjust
   frame: FrameSettings
+  /** 0..1 soft darkening behind the clock, baked into the export. */
+  scrim: number
 }
 
 export const DEFAULT_FRAME: FrameSettings = {
@@ -59,6 +61,8 @@ export function srcSize(img: Source) {
   if (img instanceof HTMLImageElement) return { w: img.naturalWidth, h: img.naturalHeight }
   return { w: img.width, h: img.height }
 }
+
+import { clockZone, type DeviceKind } from './devices'
 
 export interface Rect { x: number; y: number; w: number; h: number }
 
@@ -127,15 +131,37 @@ function find(list: Swatch[], id: string) {
 }
 
 /** Draws the wallpaper at the canvas' own resolution. Used for preview and export alike. */
-export function drawWallpaper(ctx: CanvasRenderingContext2D, img: Source, w: number, h: number, s: DeviceSettings) {
+export function drawWallpaper(ctx: CanvasRenderingContext2D, img: Source, w: number, h: number, s: DeviceSettings, kind: DeviceKind) {
   const f = s.frame
   const L = layout(img, w, h, f)
   ctx.save()
   ctx.clearRect(0, 0, w, h)
+  drawPicture(ctx, img, w, h, s, L)
+  drawScrim(ctx, w, h, s.scrim, kind)
+  ctx.restore()
+}
+
+function drawScrim(ctx: CanvasRenderingContext2D, w: number, h: number, amount: number, kind: DeviceKind) {
+  if (amount <= 0) return
+  const z = clockZone(kind, w, h)
+  const end = Math.min(1, z.y1 + 0.22) * h
+  const g = ctx.createLinearGradient(0, 0, 0, end)
+  const a = amount * 0.75
+  const hold = (z.y1 * h) / end // fully shaded until the clock ends, then ease out
+  for (let i = 0; i <= 10; i++) {
+    const t = i / 10
+    const k = t <= hold * 0.6 ? 1 : 1 - (() => { const u = Math.min(1, (t - hold * 0.6) / (1 - hold * 0.6)); return u * u * (3 - 2 * u) })()
+    g.addColorStop(t, `rgba(0,0,0,${(a * k).toFixed(4)})`)
+  }
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, w, end)
+}
+
+function drawPicture(ctx: CanvasRenderingContext2D, img: Source, w: number, h: number, s: DeviceSettings, L: ReturnType<typeof layout>) {
+  const f = s.frame
 
   if (!f.enabled) {
     drawCover(ctx, img, s.adjust, L.view)
-    ctx.restore()
     return
   }
 
@@ -187,7 +213,6 @@ export function drawWallpaper(ctx: CanvasRenderingContext2D, img: Source, w: num
   left.addColorStop(1, 'rgba(0,0,0,0)')
   ctx.fillStyle = left
   ctx.fillRect(view.x, view.y, d, view.h)
-  ctx.restore()
   ctx.restore()
 }
 

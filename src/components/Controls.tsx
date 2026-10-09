@@ -1,4 +1,5 @@
 import { DEFAULT_ADJUST, FRAME_COLORS, MAT_COLORS, MAX_ZOOM, type DeviceSettings, type FrameSettings, type Swatch } from '../lib/draw'
+import type { Legibility } from '../lib/legibility'
 import { CUSTOM_ID, groupModels, type CustomSize, type DeviceKind, type DeviceModel } from '../lib/devices'
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
   overlay: boolean
   busy: boolean
   upscale: number | null
+  legibility: Legibility | null
   onModel: (id: string) => void
   onSettings: (s: DeviceSettings) => void
   onOverlay: (v: boolean) => void
@@ -80,7 +82,7 @@ function Swatches({ label, list, value, onChange, autoPreview }: { label: string
   )
 }
 
-export function Controls({ kind, modelId, model, custom, onCustom, settings, overlay, busy, upscale, onModel, onSettings, onOverlay, onDownload }: Props) {
+export function Controls({ kind, modelId, model, custom, onCustom, settings, overlay, busy, upscale, legibility, onModel, onSettings, onOverlay, onDownload }: Props) {
   const { adjust, frame } = settings
   const setFrame = (p: Partial<FrameSettings>) => onSettings({ ...settings, frame: { ...frame, ...p } })
 
@@ -117,6 +119,24 @@ export function Controls({ kind, modelId, model, custom, onCustom, settings, ove
 
       <div className="divide-y divide-stone-200 dark:divide-white/10">
         <Switch checked={overlay} onChange={onOverlay} label="Lock screen preview" />
+        {overlay && (legibility || settings.scrim > 0) && (
+          <div className="space-y-2 py-3 text-sm">
+            <div className="flex items-center gap-2" role="status">
+              <span className={`h-2 w-2 rounded-full ${legibility === 'good' ? 'bg-emerald-500' : legibility === 'fair' ? 'bg-amber-400' : 'bg-red-500'}`} />
+              <span>
+                {legibility === 'good' ? 'Clock is easy to read' : legibility === 'fair' ? 'Clock may be hard to read in places' : 'Clock will be hard to read here'}
+              </span>
+            </div>
+            {legibility !== 'good' && settings.scrim === 0 && (
+              <button type="button" onClick={() => onSettings({ ...settings, scrim: 0.8 })} className="text-xs font-medium underline underline-offset-2">
+                Add a soft shade behind the clock
+              </button>
+            )}
+            {settings.scrim > 0 && (
+              <Slider label="Clock shade" value={settings.scrim} min={0} max={1} step={0.05} onChange={(scrim) => onSettings({ ...settings, scrim })} format={(v) => `${Math.round(v * 100)}%`} />
+            )}
+          </div>
+        )}
         <div className="pt-2">
           <Switch checked={frame.enabled} onChange={(enabled) => setFrame({ enabled })} label="Frame it" />
         </div>
