@@ -6,7 +6,7 @@ import { ModeSwitch, type Mode } from './components/ModeSwitch'
 import { ThemeToggle } from './components/ThemeToggle'
 import { useHistory } from './hooks/useHistory'
 import { useTheme } from './hooks/useTheme'
-import { DEFAULT_ADJUST, DEFAULT_FINISH, DEFAULT_FRAME, type DeviceSettings } from './lib/draw'
+import { DEFAULT_ADJUST, DEFAULT_FINISH, type Finish, DEFAULT_FRAME, type DeviceSettings } from './lib/draw'
 import { DEFAULT_MODEL, MODELS, CUSTOM_ID, resolveModel, type CustomSize, type DeviceKind } from './lib/devices'
 import { canShareFiles, download, filename, renderBlob, shareFiles, sleep, upscaleFactor, type Format } from './lib/export'
 import type { Legibility } from './lib/legibility'
@@ -32,7 +32,7 @@ const initialDevices = (): Devices => ({ mac: initial('mac'), iphone: initial('i
 
 const LS = 'plumb:v1'
 
-interface Saved { mode: Mode; format: Format; devices: Devices }
+interface Saved { mode: Mode; format: Format; devices: Devices; linkLook: boolean }
 
 function readSaved(): Partial<Saved> {
   try {
@@ -44,7 +44,7 @@ function readSaved(): Partial<Saved> {
       const known = d && (d.modelId === CUSTOM_ID || MODELS[k].some((m) => m.id === d.modelId))
       devices[k] = known ? { ...base[k], ...d, settings: { ...base[k].settings, ...d.settings, frame: { ...DEFAULT_FRAME, ...d.settings?.frame }, finish: { ...DEFAULT_FINISH, ...d.settings?.finish } } } : base[k]
     }
-    return { mode: raw.mode, format: raw.format, devices }
+    return { mode: raw.mode, format: raw.format, devices, linkLook: raw.linkLook }
   } catch {
     return {}
   }
@@ -55,10 +55,12 @@ export default function App() {
   const saved = useRef(readSaved()).current
   const [image, setImage] = useState<LoadedImage | null>(null)
   const [restoring, setRestoring] = useState(true)
+  const [showLoader, setShowLoader] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [mode, setMode] = useState<Mode>(saved.mode ?? 'both')
   const hist = useHistory<Devices>(saved.devices ?? initialDevices())
   const devices = hist.state
+  const [linkLook, setLinkLook] = useState(saved.linkLook ?? true)
   const [format, setFormat] = useState<Format>(saved.format ?? 'png')
   const [busy, setBusy] = useState<DeviceKind | 'both' | null>(null)
   const [dragging, setDragging] = useState(false)
@@ -95,13 +97,19 @@ export default function App() {
     return () => { live = false }
   }, [open])
 
+  // only show the loader if restoring takes noticeable time
+  useEffect(() => {
+    const t = setTimeout(() => setShowLoader(true), 200)
+    return () => clearTimeout(t)
+  }, [])
+
   // persist settings
   useEffect(() => {
     const t = setTimeout(() => {
-      try { localStorage.setItem(LS, JSON.stringify({ mode, format, devices })) } catch { /* quota */ }
+      try { localStorage.setItem(LS, JSON.stringify({ mode, format, devices, linkLook })) } catch { /* quota */ }
     }, 300)
     return () => clearTimeout(t)
-  }, [mode, format, devices])
+  }, [mode, format, devices, linkLook])
 
   // full-page drop + paste
   useEffect(() => {
@@ -151,6 +159,25 @@ export default function App() {
   }, [hist])
 
   const patch = (k: DeviceKind, p: Partial<DeviceState>) => hist.set((d) => ({ ...d, [k]: { ...d[k], ...p } }))
+
+  const linked = linkLook && mode === 'both'
+  /** Look changes mirror to the other device while linked, so both screens share one style. */
+  const setFinish = (k: DeviceKind, finish: Finish) =>
+    hist.set((d) => {
+      const next = { ...d, [k]: { ...d[k], settings: { ...d[k].settings, finish } } }
+      if (linked) {
+        const o: DeviceKind = k === 'mac' ? 'iphone' : 'mac'
+        next[o] = { ...d[o], settings: { ...d[o].settings, finish } }
+      }
+      return next
+    })
+  const toggleLink = (on: boolean, from: DeviceKind) => {
+    setLinkLook(on)
+    if (on) hist.set((d) => {
+      const o: DeviceKind = from === 'mac' ? 'iphone' : 'mac'
+      return { ...d, [o]: { ...d[o], settings: { ...d[o].settings, finish: d[from].settings.finish } } }
+    })
+  }
 
   const renderFile = async (k: DeviceKind) => {
     const d = devices[k]
@@ -215,7 +242,13 @@ export default function App() {
       </header>
 
       {!image ? (
-        <main>{restoring ? null : <DropZone onFile={open} onSample={pickSample} error={error} />}</main>
+        <main>
+          {restoring ? (
+            showLoader && <p role="status" className="grid min-h-[60vh] animate-pulse place-items-center text-sm text-stone-400 dark:text-white/40">Restoring your last image…</p>
+          ) : (
+            <DropZone onFile={open} onSample={pickSample} error={error} />
+          )}
+        </main>
       ) : (
         <main className="mx-auto max-w-[1500px] px-4 pb-32 sm:px-8 lg:pb-16">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -268,6 +301,9 @@ export default function App() {
                       upscale={upscaleFactor(image.bitmap, model, d.settings)}
                       onModel={(modelId) => patch(k, { modelId })}
                       onSettings={(settings) => patch(k, { settings })}
+                      onFinish={(f) => setFinish(k, f)}
+                      lookLinked={mode === 'both' ? linkLook : undefined}
+                      onLookLinked={(on) => toggleLink(on, k)}
                       onOverlay={(overlay) => patch(k, { overlay })}
                       onDownload={() => run(k)}
                       onShare={canShare ? () => run(k, true) : undefined}

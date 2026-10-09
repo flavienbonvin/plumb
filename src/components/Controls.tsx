@@ -18,6 +18,11 @@ interface Props {
   legibility: Legibility | null
   onModel: (id: string) => void
   onSettings: (s: DeviceSettings) => void
+  /** Look changes go through here so the app can mirror them to the other device. */
+  onFinish: (f: Finish) => void
+  /** Undefined when only one device is shown. */
+  lookLinked?: boolean
+  onLookLinked: (on: boolean) => void
   onOverlay: (v: boolean) => void
   onDownload: () => void
   /** Present only when the browser can open the system share sheet. */
@@ -105,7 +110,8 @@ function HowTo({ kind, exported, shared }: { kind: DeviceKind; exported: boolean
         ]
   return (
     <details open={open} onToggle={(e) => setOpen(e.currentTarget.open)} className="group mt-4 text-sm">
-      <summary className="cursor-pointer list-none text-xs font-medium text-stone-500 underline-offset-2 hover:underline dark:text-white/50">
+      <summary className="flex cursor-pointer list-none items-center gap-1.5 text-xs font-medium text-stone-500 hover:text-stone-900 dark:text-white/50 dark:hover:text-white">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="transition group-open:rotate-90" aria-hidden><path d="m3 1.5 3.5 3.5L3 8.5" /></svg>
         How to set it as your wallpaper
       </summary>
       <ol className="mt-2 list-decimal space-y-1 pl-5 text-stone-600 dark:text-white/60">
@@ -115,9 +121,9 @@ function HowTo({ kind, exported, shared }: { kind: DeviceKind; exported: boolean
   )
 }
 
-export function Controls({ kind, image, modelId, model, custom, onCustom, settings, overlay, busy, upscale, legibility, onModel, onSettings, onOverlay, onDownload, onShare, exported }: Props) {
+export function Controls({ kind, image, modelId, model, custom, onCustom, settings, overlay, busy, upscale, legibility, onModel, onSettings, onFinish, lookLinked, onLookLinked, onOverlay, onDownload, onShare, exported }: Props) {
   const { adjust, frame } = settings
-  const setFinish = (p: Partial<Finish>) => onSettings({ ...settings, finish: { ...settings.finish, ...p } })
+  const setFinish = (p: Partial<Finish>) => onFinish({ ...settings.finish, ...p })
   const pct = (v: number) => `${Math.round(v * 100)}%`
   const setFrame = (p: Partial<FrameSettings>) => onSettings({ ...settings, frame: { ...frame, ...p } })
 
@@ -153,14 +159,15 @@ export function Controls({ kind, image, modelId, model, custom, onCustom, settin
       </div>
 
       <div className="space-y-4 border-y border-stone-200 py-5 dark:border-white/10">
-        <LookStrip image={image} finish={settings.finish} onChange={(finish) => onSettings({ ...settings, finish })} />
+        <LookStrip image={image} finish={settings.finish} onChange={onFinish} />
+        {lookLinked !== undefined && <Switch checked={lookLinked} onChange={onLookLinked} label="Same look on Mac and iPhone" />}
         {settings.finish.look !== 'none' && (
           <Slider label="Look strength" value={settings.finish.intensity} min={0} max={1} step={0.05} onChange={(intensity) => setFinish({ intensity })} format={pct} />
         )}
         <Slider label="Grain" value={settings.finish.grain} min={0} max={1} step={0.05} onChange={(grain) => setFinish({ grain })} format={pct} />
         <Slider label="Vignette" value={settings.finish.vignette} min={0} max={1} step={0.05} onChange={(vignette) => setFinish({ vignette })} format={pct} />
         {hasFinish(settings.finish) && (
-          <button type="button" onClick={() => onSettings({ ...settings, finish: DEFAULT_FINISH })} className="text-xs font-medium text-stone-500 underline-offset-2 hover:underline dark:text-white/50">
+          <button type="button" onClick={() => onFinish(DEFAULT_FINISH)} className="text-xs font-medium text-stone-500 underline-offset-2 hover:underline dark:text-white/50">
             Remove look
           </button>
         )}
