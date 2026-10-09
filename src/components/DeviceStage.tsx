@@ -128,7 +128,7 @@ export function DeviceStage({ model, image, settings, view, blur, onChange, onLe
             boxShadow: '0 0 0 1px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.06)',
           }}
         >
-          <span aria-hidden className="absolute left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-[#1b2230] ring-1 ring-white/20" style={{ top: `${shape.bezel / 2 - 0.2}cqw` }} />
+          {(!model.notch || view === 'off') && <span aria-hidden className="absolute left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-[#1b2230] ring-1 ring-white/20" style={{ top: `${shape.bezel / 2 - 0.2}cqw` }} />}
           {screen}
           <span
             aria-hidden

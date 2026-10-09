@@ -35,7 +35,10 @@ export function MacMenuBar({ notch, desktop, dark = false }: Props) {
           {desktop && <span className="ml-[0.2cqw]" style={{ fontVariantNumeric: 'tabular-nums' }}>{menuDate(now)}</span>}
         </div>
       </div>
-      {notch && <div className="absolute top-0 left-1/2 -translate-x-1/2 rounded-b-[0.65cqw] bg-black" style={{ height: `${h - 0.1}cqw`, width: '8.8cqw' }} />}
+      {notch && <div className="absolute top-0 left-1/2 -translate-x-1/2 rounded-b-[0.65cqw] bg-black" style={{ height: `${h - 0.1}cqw`, width: '8.8cqw' }}>
+          {/* camera sits inside the notch */}
+          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#141a26] ring-[0.12cqw] ring-white/10" style={{ width: '0.8cqw', height: '0.8cqw' }} />
+        </div>}
     </>
   )
 }
