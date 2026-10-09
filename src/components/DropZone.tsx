@@ -1,5 +1,7 @@
 import { useRef } from 'react'
+import type { DeviceKind } from '../lib/devices'
 import { SAMPLES, sampleThumb, type Sample } from '../lib/samples'
+import { DeviceSwitch } from './DeviceSwitch'
 
 function Thumb({ sample, onPick }: { sample: Sample; onPick: (s: Sample) => void }) {
   return (
@@ -16,21 +18,25 @@ function Thumb({ sample, onPick }: { sample: Sample; onPick: (s: Sample) => void
   )
 }
 
-export function DropZone({ onFile, onSample, error }: { onFile: (f: File) => void; onSample: (s: Sample) => void; error?: string | null }) {
+export function DropZone({ kind, onKind, onFile, onSample, error }: { kind: DeviceKind; onKind: (k: DeviceKind) => void; onFile: (f: File) => void; onSample: (s: Sample) => void; error?: string | null }) {
   const input = useRef<HTMLInputElement>(null)
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-2xl flex-col items-center justify-center px-6 text-center">
+      <div className="mb-5 flex flex-col items-center gap-2">
+        <span className="text-sm text-stone-500 dark:text-white/50">What is it for?</span>
+        <DeviceSwitch value={kind} onChange={onKind} />
+      </div>
       <button
         type="button"
         onClick={() => input.current?.click()}
         className="group relative flex w-full flex-col items-center gap-5 rounded-[2rem] border border-dashed border-stone-300 bg-white/60 px-8 py-20 transition hover:border-stone-400 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-stone-900 dark:border-white/15 dark:bg-white/[0.03] dark:hover:border-white/30 dark:hover:bg-white/[0.06] dark:focus-visible:outline-white"
       >
         <div className="flex items-end gap-3 text-stone-400 transition group-hover:text-stone-600 dark:text-white/30 dark:group-hover:text-white/60">
-          <svg width="76" height="52" viewBox="0 0 76 52" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+          <svg width="76" height="52" viewBox="0 0 76 52" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden className={`transition-opacity duration-200 ${kind === 'mac' ? '' : 'hidden'}`}>
             <rect x="3" y="3" width="70" height="42" rx="5" />
             <path d="M20 49h36" strokeLinecap="round" />
           </svg>
-          <svg width="26" height="52" viewBox="0 0 26 52" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+          <svg width="26" height="52" viewBox="0 0 26 52" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden className={kind === 'iphone' ? '' : 'hidden'}>
             <rect x="2" y="2" width="22" height="48" rx="6" />
             <rect x="9" y="6" width="8" height="3" rx="1.5" fill="currentColor" stroke="none" />
           </svg>
@@ -38,7 +44,7 @@ export function DropZone({ onFile, onSample, error }: { onFile: (f: File) => voi
         <div>
           <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Fit any image to your lock screen</h1>
           <p className="mt-3 text-base text-stone-500 dark:text-white/55">
-            Drop an image here, click to browse, or paste. Preview it behind the clock on Mac and iPhone, then export at native resolution.
+            Drop an image here, click to browse, or paste. Preview it behind the clock on your {kind === 'mac' ? 'Mac' : 'iPhone'}, then export at native resolution.
           </p>
         </div>
         <span className="rounded-full bg-stone-900 px-5 py-2 text-sm font-medium text-white dark:bg-white dark:text-stone-900">Choose image</span>

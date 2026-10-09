@@ -211,7 +211,7 @@ export default function App() {
           {restoring ? (
             showLoader && <p role="status" className="grid min-h-[60vh] animate-pulse place-items-center text-sm text-stone-400 dark:text-white/40">Restoring your last image…</p>
           ) : (
-            <DropZone onFile={open} onSample={pickSample} error={error} />
+            <DropZone kind={kind} onKind={setKind} onFile={open} onSample={pickSample} error={error} />
           )}
         </main>
       ) : (
