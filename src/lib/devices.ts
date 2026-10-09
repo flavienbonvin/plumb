@@ -18,7 +18,6 @@ export const MACS: DeviceModel[] = [
   { id: 'mba13', kind: 'mac', group: 'MacBook Air', label: 'MacBook Air 13″', w: 2560, h: 1664, notch: true },
   { id: 'mba15', kind: 'mac', group: 'MacBook Air', label: 'MacBook Air 15″', w: 2880, h: 1864, notch: true },
   { id: 'mbp14', kind: 'mac', group: 'MacBook Pro', label: 'MacBook Pro 14″', w: 3024, h: 1964, notch: true },
-  { id: 'mbp15', kind: 'mac', group: 'MacBook Pro', label: 'MacBook Pro 15″', w: 2880, h: 1800 },
   { id: 'mbp16', kind: 'mac', group: 'MacBook Pro', label: 'MacBook Pro 16″', w: 3456, h: 2234, notch: true },
   { id: 'disp4k', kind: 'mac', group: 'External display', label: '4K display', w: 3840, h: 2160 },
   { id: 'disp5k', kind: 'mac', group: 'External display', label: '5K display', w: 5120, h: 2880 },
