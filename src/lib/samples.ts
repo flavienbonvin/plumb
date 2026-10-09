@@ -10,12 +10,12 @@ export interface Sample {
 }
 
 export const SAMPLES: Sample[] = [
-  { id: 'aurora', label: 'Aurora', credit: 'Johannes Groll followhansi', source: 'https://commons.wikimedia.org/wiki/File:Lofoten,_Norway_(Unsplash).jpg' },
-  { id: 'glacier', label: 'Glacier', credit: 'adrian aows', source: 'https://commons.wikimedia.org/wiki/File:Glacier_Sunrise_(Unsplash).jpg' },
-  { id: 'dunes', label: 'Dunes', credit: 'Breanna Galley breannagalley', source: 'https://commons.wikimedia.org/wiki/File:Desert_Dunes_in_New_Mexico_(Unsplash).jpg' },
+  { id: 'dunes', label: 'Dunes', credit: 'Breanna Galley', source: 'https://commons.wikimedia.org/wiki/File:Desert_Dunes_in_New_Mexico_(Unsplash).jpg' },
   { id: 'fog', label: 'Fog', credit: 'Mar Mkrtchyan', source: 'https://commons.wikimedia.org/wiki/File:Foggy_forest_hillside.jpg' },
-  { id: 'sunset', label: 'Sunset', credit: 'Arnaud Mesureur tbzr', source: 'https://commons.wikimedia.org/wiki/File:Gunnamatta_Sunset_(Unsplash).jpg' },
-  { id: 'summit', label: 'Summit', credit: 'Victor Filippov victorf', source: 'https://commons.wikimedia.org/wiki/File:Sea_of_snowy_peaks_(Unsplash).jpg' },
+  { id: 'ridges', label: 'Ridges', credit: 'simon from Austria', source: 'https://commons.wikimedia.org/wiki/File:Rocky_ride._-_Flickr_-_simon_berger.jpg' },
+  { id: 'gold', label: 'Golden hour', credit: 'Johannes Plenio', source: 'https://commons.wikimedia.org/wiki/File:Beautiful_mountain_reflection_(Unsplash).jpg' },
+  { id: 'dusk', label: 'Dusk', credit: 'Unknown author', source: 'https://commons.wikimedia.org/wiki/File:Sky_Clouds_Atmosphere.jpg' },
+  { id: 'lake', label: 'Lake', credit: 'Ales Krivec', source: 'https://commons.wikimedia.org/wiki/File:Clouds_mirrored_in_a_mountain_lake_(Unsplash).jpg' },
 ]
 
 export const sampleThumb = (s: Sample) => `/samples/${s.id}-thumb.jpg`
