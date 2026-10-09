@@ -89,7 +89,7 @@ export function Wizard(p: Props) {
               kind={kind} onKind={p.onKind} image={image.preview} width={image.bitmap.width} height={image.bitmap.height}
               onReplace={p.onReplace} onRemove={p.onRemove}
               modelId={d.modelId} onModel={(modelId) => p.onPatch({ modelId })} custom={d.custom} onCustom={(custom) => p.onPatch({ custom })}
-              settings={d.settings} onSettings={setSettings} view={d.view} level={p.level}
+              settings={d.settings} onSettings={setSettings} view={d.view} level={p.level} upscale={p.upscale}
             />
           </StepPanel>
         )}
@@ -103,7 +103,7 @@ export function Wizard(p: Props) {
         )}
         {step === 'export' && (
           <StepPanel dir={dir} title="Export" hint="Save the file at the screen's native resolution." footer={footer}>
-            <ExportStep model={model} format={p.format} onFormat={p.onFormat} upscale={p.upscale} busy={p.busy} exported={p.exported} onDownload={p.onDownload} onShare={p.onShare} saved={p.saved} carriedFrom={p.carriedFrom} onAdjust={() => p.onStep('place')} onCreateOther={p.onCreateOther} />
+            <ExportStep model={model} format={p.format} onFormat={p.onFormat} upscale={p.upscale} busy={p.busy} exported={p.exported} onDownload={p.onDownload} onShare={p.onShare} saved={p.saved} carriedFrom={p.carriedFrom} onAdjust={() => p.onStep('place')} view={d.view} level={p.level} scrim={d.settings.scrim} onFixClock={() => p.onStep('style')} onCreateOther={p.onCreateOther} />
           </StepPanel>
         )}
       </div>

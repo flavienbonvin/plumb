@@ -5,6 +5,7 @@ import { ClockStatus } from './ClockStatus'
 import { DeviceSwitch } from './DeviceSwitch'
 import { field, select, Slider, Swatches, Switch } from './fields'
 import { ImageChip } from './ImageChip'
+import { QualityNote } from './QualityNote'
 
 interface Props {
   kind: DeviceKind
@@ -22,9 +23,10 @@ interface Props {
   onSettings: (s: DeviceSettings) => void
   view: ScreenView
   level: Legibility | null
+  upscale: number | null
 }
 
-export function PlaceStep({ kind, onKind, image, width, height, onReplace, onRemove, modelId, onModel, custom, onCustom, settings, onSettings, view, level }: Props) {
+export function PlaceStep({ kind, onKind, image, width, height, onReplace, onRemove, modelId, onModel, custom, onCustom, settings, onSettings, view, level, upscale }: Props) {
   const { adjust, frame } = settings
   const setFrame = (p: Partial<FrameSettings>) => onSettings({ ...settings, frame: { ...frame, ...p } })
   return (
@@ -50,10 +52,22 @@ export function PlaceStep({ kind, onKind, image, width, height, onReplace, onRem
             <span className="text-xs text-stone-400">px</span>
           </div>
         )}
+        <details className="group mt-2 text-xs">
+          <summary className="flex cursor-pointer list-none items-center gap-1.5 font-medium text-stone-500 hover:text-stone-900 dark:text-white/50 dark:hover:text-white">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="transition group-open:rotate-90" aria-hidden><path d="m3 1.5 3.5 3.5L3 8.5" /></svg>
+            Not sure which model?
+          </summary>
+          <p className="mt-1.5 text-stone-500 dark:text-white/50">
+            {kind === 'iphone'
+              ? 'On your iPhone, open Settings, then General, then About, and read Model Name. Models that share a screen are listed together. Another size? Choose Custom size.'
+              : 'On your Mac, open the Apple menu and choose About This Mac. Pick the same model and screen size. For an external display, check its resolution in Displays settings, or choose Custom size.'}
+          </p>
+        </details>
       </div>
 
       <div className="space-y-3">
         <Slider label="Zoom" value={adjust.zoom} min={1} max={MAX_ZOOM} step={0.01} onChange={(zoom) => onSettings({ ...settings, adjust: { ...adjust, zoom } })} format={(v) => `${Math.round(v * 100)}%`} />
+        <QualityNote upscale={upscale} />
         <p className="text-xs text-stone-400 dark:text-white/40">Drag the preview to move the image. It snaps to the centre.</p>
         <button type="button" onClick={() => onSettings({ ...settings, adjust: DEFAULT_ADJUST })} className="justify-self-start py-1.5 text-xs font-medium text-stone-500 underline-offset-2 hover:underline dark:text-white/50">
           Reset position
