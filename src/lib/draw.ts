@@ -36,12 +36,18 @@ export interface FrameSettings {
   matWidth: number
 }
 
+import { applyGrade, overlayFinish, DEFAULT_FINISH, hasFinish, type Finish } from './looks'
+export { DEFAULT_FINISH, hasFinish }
+export type { Finish }
+
 export interface DeviceSettings {
   adjust: Adjust
   frame: FrameSettings
   /** 0..1 soft darkening behind the clock, baked into the export. */
   scrim: number
+  finish: Finish
 }
+
 
 export const DEFAULT_FRAME: FrameSettings = {
   enabled: false,
@@ -137,6 +143,10 @@ export function drawWallpaper(ctx: CanvasRenderingContext2D, img: Source, w: num
   ctx.save()
   ctx.clearRect(0, 0, w, h)
   drawPicture(ctx, img, w, h, s, L)
+  if (hasFinish(s.finish)) {
+    applyGrade(ctx, L.view, s.finish)
+    overlayFinish(ctx, L.view, s.finish, Math.min(w, h))
+  }
   drawScrim(ctx, w, h, s.scrim, kind)
   ctx.restore()
 }

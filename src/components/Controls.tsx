@@ -1,10 +1,12 @@
-import { DEFAULT_ADJUST, FRAME_COLORS, MAT_COLORS, MAX_ZOOM, type DeviceSettings, type FrameSettings, type Swatch } from '../lib/draw'
+import { LookStrip } from './LookStrip'
+import { DEFAULT_ADJUST, DEFAULT_FINISH, hasFinish, type Finish, FRAME_COLORS, MAT_COLORS, MAX_ZOOM, type DeviceSettings, type FrameSettings, type Swatch } from '../lib/draw'
 import { useEffect, useState } from 'react'
 import type { Legibility } from '../lib/legibility'
 import { CUSTOM_ID, groupModels, type CustomSize, type DeviceKind, type DeviceModel } from '../lib/devices'
 
 interface Props {
   kind: DeviceKind
+  image: ImageBitmap
   modelId: string
   model: DeviceModel
   custom: CustomSize
@@ -113,8 +115,10 @@ function HowTo({ kind, exported, shared }: { kind: DeviceKind; exported: boolean
   )
 }
 
-export function Controls({ kind, modelId, model, custom, onCustom, settings, overlay, busy, upscale, legibility, onModel, onSettings, onOverlay, onDownload, onShare, exported }: Props) {
+export function Controls({ kind, image, modelId, model, custom, onCustom, settings, overlay, busy, upscale, legibility, onModel, onSettings, onOverlay, onDownload, onShare, exported }: Props) {
   const { adjust, frame } = settings
+  const setFinish = (p: Partial<Finish>) => onSettings({ ...settings, finish: { ...settings.finish, ...p } })
+  const pct = (v: number) => `${Math.round(v * 100)}%`
   const setFrame = (p: Partial<FrameSettings>) => onSettings({ ...settings, frame: { ...frame, ...p } })
 
   return (
@@ -146,6 +150,20 @@ export function Controls({ kind, modelId, model, custom, onCustom, settings, ove
         <button type="button" onClick={() => onSettings({ ...settings, adjust: DEFAULT_ADJUST })} className="text-xs font-medium text-stone-500 underline-offset-2 hover:underline dark:text-white/50">
           Reset position
         </button>
+      </div>
+
+      <div className="space-y-4 border-y border-stone-200 py-5 dark:border-white/10">
+        <LookStrip image={image} finish={settings.finish} onChange={(finish) => onSettings({ ...settings, finish })} />
+        {settings.finish.look !== 'none' && (
+          <Slider label="Look strength" value={settings.finish.intensity} min={0} max={1} step={0.05} onChange={(intensity) => setFinish({ intensity })} format={pct} />
+        )}
+        <Slider label="Grain" value={settings.finish.grain} min={0} max={1} step={0.05} onChange={(grain) => setFinish({ grain })} format={pct} />
+        <Slider label="Vignette" value={settings.finish.vignette} min={0} max={1} step={0.05} onChange={(vignette) => setFinish({ vignette })} format={pct} />
+        {hasFinish(settings.finish) && (
+          <button type="button" onClick={() => onSettings({ ...settings, finish: DEFAULT_FINISH })} className="text-xs font-medium text-stone-500 underline-offset-2 hover:underline dark:text-white/50">
+            Remove look
+          </button>
+        )}
       </div>
 
       <div className="divide-y divide-stone-200 dark:divide-white/10">
@@ -181,6 +199,7 @@ export function Controls({ kind, modelId, model, custom, onCustom, settings, ove
           <Slider label="Mat width" value={frame.matWidth} min={0} max={16} step={0.5} onChange={(matWidth) => setFrame({ matWidth })} format={(v) => v.toFixed(1)} />
         </div>
       )}
+
 
       <div>
         <button

@@ -6,7 +6,7 @@ import { ModeSwitch, type Mode } from './components/ModeSwitch'
 import { ThemeToggle } from './components/ThemeToggle'
 import { useHistory } from './hooks/useHistory'
 import { useTheme } from './hooks/useTheme'
-import { DEFAULT_ADJUST, DEFAULT_FRAME, type DeviceSettings } from './lib/draw'
+import { DEFAULT_ADJUST, DEFAULT_FINISH, DEFAULT_FRAME, type DeviceSettings } from './lib/draw'
 import { DEFAULT_MODEL, MODELS, CUSTOM_ID, resolveModel, type CustomSize, type DeviceKind } from './lib/devices'
 import { canShareFiles, download, filename, renderBlob, shareFiles, sleep, upscaleFactor, type Format } from './lib/export'
 import type { Legibility } from './lib/legibility'
@@ -25,7 +25,7 @@ type Devices = Record<DeviceKind, DeviceState>
 const initial = (kind: DeviceKind): DeviceState => ({
   modelId: DEFAULT_MODEL[kind],
   custom: kind === 'mac' ? { w: 2560, h: 1440 } : { w: 1170, h: 2532 },
-  settings: { adjust: DEFAULT_ADJUST, frame: DEFAULT_FRAME, scrim: 0 },
+  settings: { adjust: DEFAULT_ADJUST, frame: DEFAULT_FRAME, scrim: 0, finish: DEFAULT_FINISH },
   overlay: true,
 })
 const initialDevices = (): Devices => ({ mac: initial('mac'), iphone: initial('iphone') })
@@ -42,7 +42,7 @@ function readSaved(): Partial<Saved> {
     for (const k of ['mac', 'iphone'] as DeviceKind[]) {
       const d = raw.devices?.[k]
       const known = d && (d.modelId === CUSTOM_ID || MODELS[k].some((m) => m.id === d.modelId))
-      devices[k] = known ? { ...base[k], ...d, settings: { ...base[k].settings, ...d.settings, frame: { ...DEFAULT_FRAME, ...d.settings?.frame } } } : base[k]
+      devices[k] = known ? { ...base[k], ...d, settings: { ...base[k].settings, ...d.settings, frame: { ...DEFAULT_FRAME, ...d.settings?.frame }, finish: { ...DEFAULT_FINISH, ...d.settings?.finish } } } : base[k]
     }
     return { mode: raw.mode, format: raw.format, devices }
   } catch {
@@ -256,6 +256,7 @@ export default function App() {
                   <div className="w-full max-w-md shrink-0">
                     <Controls
                       kind={k}
+                      image={image.preview}
                       modelId={d.modelId}
                       model={model}
                       custom={d.custom}

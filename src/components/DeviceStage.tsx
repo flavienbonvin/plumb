@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useGradedSource } from '../hooks/useGradedSource'
 import { usePanZoom } from '../hooks/usePanZoom'
 import { drawWallpaper, get2dP3, layout, srcSize, type DeviceSettings } from '../lib/draw'
 import { clockZone, type DeviceModel } from '../lib/devices'
@@ -28,6 +29,7 @@ export function DeviceStage({ model, image, settings, overlay, onChange, onLegib
   // preview resolution: enough for crisp display, much cheaper than native
   const pw = mac ? 1600 : 720
   const ph = Math.round((pw * model.h) / model.w)
+  const graded = useGradedSource(image, settings.finish.look, settings.finish.intensity)
   const { w: iw, h: ih } = srcSize(image)
   const L = layout(image, pw, ph, settings.frame)
 
@@ -36,13 +38,14 @@ export function DeviceStage({ model, image, settings, overlay, onChange, onLegib
     if (!c) return
     const id = requestAnimationFrame(() => {
       const ctx = get2dP3(c)
-      drawWallpaper(ctx, image, pw, ph, settings, model.kind)
+      // the graded copy already carries the look, so only vignette and grain remain to draw
+      drawWallpaper(ctx, graded, pw, ph, { ...settings, finish: { ...settings.finish, look: 'none' } }, model.kind)
       const l = overlay ? measureLegibility(c, clockZone(model.kind, model.w, model.h)) : null
       setLevel(l)
       report.current?.(l)
     })
     return () => cancelAnimationFrame(id)
-  }, [image, settings, pw, ph, model.kind, model.w, model.h, overlay])
+  }, [graded, settings, pw, ph, model.kind, model.w, model.h, overlay])
 
   usePanZoom(stage, {
     adjust: settings.adjust,
