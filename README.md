@@ -45,7 +45,7 @@ pnpm exec wrangler login   # once
 SITE_URL=https://your-domain pnpm deploy
 ```
 
-`SITE_URL` makes the social preview image URL absolute, which link scrapers need. Without it the page works, but shared links may not show the preview.
+`SITE_URL` is set in `.env.production` (currently `https://plumb.flavienbonvin.com`), so every build picks it up. It makes the social preview image URL absolute, which link scrapers need. Without it the page works, but shared links may not show the preview.
 
 Or connect the GitHub repo in the Cloudflare dashboard (Workers & Pages, then Create, then Import a repository) with `pnpm build` as the build command and `npx wrangler deploy` as the deploy command. Set `SITE_URL` as a build variable there.
 
