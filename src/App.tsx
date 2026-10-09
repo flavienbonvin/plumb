@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Controls } from './components/Controls'
-import { DeviceStage } from './components/DeviceStage'
 import { DropZone } from './components/DropZone'
-import { ImageChip } from './components/ImageChip'
 import { btnSecondary, iconProps } from './components/ui'
-import { DeviceSwitch } from './components/DeviceSwitch'
+import { Wizard } from './components/Wizard'
 import { ThemeToggle } from './components/ThemeToggle'
 import { useHistory } from './hooks/useHistory'
 import { useTheme } from './hooks/useTheme'
@@ -173,14 +170,13 @@ export default function App() {
     clearSavedImage()
   }
 
-  const kinds: DeviceKind[] = [kind]
-  const primary =
-    'rounded-full bg-stone-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-stone-700 disabled:opacity-50 dark:bg-white dark:text-stone-900 dark:hover:bg-stone-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900 dark:focus-visible:outline-white'
+  const d = devices[kind]
+  const model = resolveModel(kind, d.modelId, d.custom)
 
   return (
     <div className="min-h-screen">
-      <header className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-x-3 gap-y-3 px-4 py-3 sm:px-8 sm:py-4">
-        <span className="order-1 flex shrink-0 items-center gap-2 font-display text-base font-semibold tracking-tight">
+      <header className="mx-auto flex max-w-[1500px] items-center gap-3 px-4 py-3 sm:px-8 sm:py-4">
+        <span className="flex shrink-0 items-center gap-2 font-display text-base font-semibold tracking-tight">
           <svg viewBox="0 0 64 64" className="h-6 w-6" aria-hidden>
             <rect width="64" height="64" rx="15" className="fill-stone-900 dark:fill-stone-100" />
             <line x1="32" y1="9" x2="32" y2="37" strokeWidth="2.6" strokeLinecap="round" className="stroke-white dark:stroke-stone-900" />
@@ -189,19 +185,18 @@ export default function App() {
           Plumb
         </span>
         {image && (
-          <div className="order-3 flex w-full items-center gap-2 sm:order-2 sm:ml-auto sm:w-auto sm:gap-3">
-              <button type="button" className={btnSecondary} onClick={hist.undo} disabled={!hist.canUndo} title="Undo (⌘Z)">
-                <svg {...iconProps}><path d="M9 14 4 9l5-5" /><path d="M4 9h10a6 6 0 0 1 0 12h-3" /></svg>
-                Undo
-              </button>
-              <button type="button" className={btnSecondary} onClick={hist.redo} disabled={!hist.canRedo} title="Redo (⇧⌘Z)">
-                <svg {...iconProps}><path d="m15 14 5-5-5-5" /><path d="M20 9H10a6 6 0 0 0 0 12h3" /></svg>
-                Redo
-              </button>
-              <DeviceSwitch value={kind} onChange={setKind} />
+          <div className="ml-auto flex items-center gap-2">
+            <button type="button" className={btnSecondary} onClick={hist.undo} disabled={!hist.canUndo} title="Undo (⌘Z)">
+              <svg {...iconProps}><path d="M9 14 4 9l5-5" /><path d="M4 9h10a6 6 0 0 1 0 12h-3" /></svg>
+              Undo
+            </button>
+            <button type="button" className={btnSecondary} onClick={hist.redo} disabled={!hist.canRedo} title="Redo (⇧⌘Z)">
+              <svg {...iconProps}><path d="m15 14 5-5-5-5" /><path d="M20 9H10a6 6 0 0 0 0 12h3" /></svg>
+              Redo
+            </button>
           </div>
         )}
-        <div className={`order-2 ml-auto sm:order-3 ${image ? 'sm:ml-0' : ''}`}>
+        <div className={image ? '' : 'ml-auto'}>
           <ThemeToggle value={theme} onChange={setTheme} />
         </div>
       </header>
@@ -215,75 +210,31 @@ export default function App() {
           )}
         </main>
       ) : (
-        <main data-step={step} className="mx-auto max-w-[1500px] px-4 pb-32 sm:px-8 lg:pb-16">
+        <main data-step={step} className="mx-auto max-w-[1500px] px-4 pb-16 sm:px-8">
           <h1 className="sr-only">Wallpaper preview and export</h1>
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-            <ImageChip image={image.preview} width={image.bitmap.width} height={image.bitmap.height} onReplace={open} onRemove={clear} />
-            <div className="hidden items-center gap-3 lg:flex">
-              <label className="flex items-center gap-2 text-xs text-stone-500 dark:text-white/50">
-                Format
-                <select name="format" value={format} onChange={(e) => setFormat(e.target.value as Format)} className="rounded-lg border border-stone-200 bg-white px-2 py-1 text-sm text-stone-900 dark:border-white/10 dark:bg-neutral-900 dark:text-white">
-                  <option value="png">PNG</option>
-                  <option value="jpeg">JPEG</option>
-                </select>
-              </label>
-            </div>
-          </div>
           {error && <p role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
-
-          <div className={`grid items-start gap-10`}>
-            {kinds.map((k) => {
-              const d = devices[k]
-              const model = resolveModel(k, d.modelId, d.custom)
-              return (
-                <section key={k} aria-label={k === 'mac' ? 'Mac wallpaper' : 'iPhone wallpaper'} className={`flex min-w-0 flex-col items-center gap-6 lg:flex-row lg:items-start lg:justify-center`}>
-                  <div className={`flex w-full justify-center lg:w-auto lg:flex-1`}>
-                    <DeviceStage model={model} image={image.preview} settings={d.settings} view={d.view} blur={d.homeBlur} onChange={(settings) => patch(k, { settings })} onLegibility={(l) => setLegibility((p) => (p[k] === l ? p : { ...p, [k]: l }))} />
-                  </div>
-                  <div className="w-full max-w-md shrink-0">
-                    <Controls
-                      kind={k}
-                      image={image.preview}
-                      modelId={d.modelId}
-                      model={model}
-                      custom={d.custom}
-                      onCustom={(custom) => patch(k, { custom })}
-                      settings={d.settings}
-                      view={d.view}
-                      busy={busy !== null}
-                      legibility={legibility[k]}
-                      upscale={upscaleFactor(image.bitmap, model, d.settings)}
-                      onModel={(modelId) => patch(k, { modelId })}
-                      onSettings={(settings) => patch(k, { settings })}
-                      onFinish={(f) => setFinish(k, f)}
-                      onView={(view) => patch(k, { view })}
-                      homeBlur={d.homeBlur}
-                      onHomeBlur={(homeBlur) => patch(k, { homeBlur })}
-                      onDownload={() => run(k)}
-                      onShare={canShare ? () => run(k, true) : undefined}
-                      exported={exported[k]}
-                    />
-                  </div>
-                </section>
-              )
-            })}
-          </div>
-
-          {/* mobile action bar */}
-          <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-stone-200 bg-stone-100/90 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden dark:border-white/10 dark:bg-neutral-950/90">
-            <select aria-label="Format" name="format-mobile" value={format} onChange={(e) => setFormat(e.target.value as Format)} className="rounded-lg border border-stone-200 bg-white px-2 py-2 text-sm dark:border-white/10 dark:bg-neutral-900">
-              <option value="png">PNG</option>
-              <option value="jpeg">JPEG</option>
-            </select>
-            {canShare && (
-              <button type="button" onClick={() => run(kind, true)} disabled={busy !== null} className="rounded-full border border-stone-300 px-5 py-3 text-sm font-medium dark:border-white/20">
-                Share
-              </button>
-            )}
-            <button type="button" onClick={() => run(kind)} disabled={busy !== null} className={`${primary} flex-1 py-3`}>
-              {busy ? 'Exporting…' : `Download ${kind === 'mac' ? 'Mac' : 'iPhone'}`}
-            </button>
-          </div>
+          <Wizard
+            kind={kind}
+            onKind={setKind}
+            step={step}
+            onStep={setStep}
+            image={image}
+            d={d}
+            model={model}
+            onPatch={(p) => patch(kind, p)}
+            onFinish={(f) => setFinish(kind, f)}
+            level={legibility[kind]}
+            onLevel={(l) => setLegibility((p) => (p[kind] === l ? p : { ...p, [kind]: l }))}
+            upscale={upscaleFactor(image.bitmap, model, d.settings)}
+            busy={busy !== null}
+            exported={exported[kind]}
+            format={format}
+            onFormat={setFormat}
+            onDownload={() => run(kind)}
+            onShare={canShare ? () => run(kind, true) : undefined}
+            onReplace={open}
+            onRemove={clear}
+          />
         </main>
       )}
 

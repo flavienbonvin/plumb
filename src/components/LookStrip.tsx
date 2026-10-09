@@ -50,7 +50,7 @@ export function LookStrip({ image, finish, onChange }: Props) {
               <span className={`block overflow-hidden rounded-lg ring-1 transition group-focus-visible:ring-2 group-focus-visible:ring-stone-900 dark:group-focus-visible:ring-white ${on ? 'ring-2 ring-stone-900 dark:ring-white' : 'ring-black/10 group-hover:ring-black/30 dark:ring-white/10 dark:group-hover:ring-white/30'}`}>
                 <Thumb image={image} id={l.id} />
               </span>
-              <span className={`mt-1 block text-center text-[11px] leading-tight ${on ? 'font-semibold' : 'text-stone-500 dark:text-white/50'}`}>{l.label}</span>
+              <span className={`mt-1 block text-center text-[11px] leading-tight whitespace-nowrap tracking-tight ${on ? 'font-semibold' : 'text-stone-500 dark:text-white/50'}`}>{l.label}</span>
             </button>
           )
         })}
