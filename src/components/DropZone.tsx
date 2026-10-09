@@ -1,19 +1,18 @@
 import { useRef } from 'react'
 import type { DeviceKind } from '../lib/devices'
-import { SAMPLES, sampleThumb, type Sample } from '../lib/samples'
+import { sampleCredit, sampleThumb, samplesFor, type Sample } from '../lib/samples'
 import { DeviceSwitch } from './DeviceSwitch'
-import { PaintingCandidates } from './PaintingCandidates'
 
 function Thumb({ sample, onPick }: { sample: Sample; onPick: (s: Sample) => void }) {
   return (
     <button
       type="button"
       onClick={() => onPick(sample)}
-      title={`Photo by ${sample.credit} · CC0`}
+      title={sampleCredit(sample)}
       className="group relative overflow-hidden rounded-xl text-left ring-1 ring-black/10 transition duration-300 hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900 dark:ring-white/10 dark:focus-visible:outline-white"
     >
-      <img src={sampleThumb(sample)} alt="" loading="lazy" width={480} height={320} className="block aspect-[3/2] w-full object-cover transition duration-500 group-hover:scale-105" />
-      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-3 pt-6 pb-2 text-xs font-medium text-white">{sample.label}</span>
+      <img src={sampleThumb(sample)} alt="" loading="lazy" width={sample.kind === 'iphone' ? 320 : 480} height={sample.kind === 'iphone' ? 480 : 320} className={`block w-full object-cover transition duration-500 group-hover:scale-105 ${sample.kind === 'iphone' ? 'aspect-[2/3]' : 'aspect-[3/2]'}`} />
+      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-2.5 pt-6 pb-2 text-xs font-medium text-white">{sample.label}</span>
       <span className="sr-only">Try with {sample.label}</span>
     </button>
   )
@@ -52,9 +51,9 @@ export function DropZone({ kind, onKind, onFile, onSample, error }: { kind: Devi
       </button>
       {error && <p role="alert" className="mt-5 text-sm text-red-600 dark:text-red-400">{error}</p>}
       <div className="mt-8 w-full">
-        <p className="mb-3 text-sm text-stone-500 dark:text-white/50">No image handy? Try a sample.</p>
-        <div className="grid grid-cols-3 gap-3">
-          {SAMPLES.map((s) => <Thumb key={s.id} sample={s} onPick={onSample} />)}
+        <p className="mb-3 text-sm text-stone-500 dark:text-white/50">No image handy? Try a painting.</p>
+        <div key={kind} className={`stage-enter grid gap-3 ${kind === 'iphone' ? 'mx-auto max-w-md grid-cols-3' : 'grid-cols-3 sm:grid-cols-5'}`}>
+          {samplesFor(kind).map((s) => <Thumb key={s.id} sample={s} onPick={onSample} />)}
         </div>
       </div>
       <ul className="mt-12 grid w-full gap-6 text-left sm:grid-cols-3">
@@ -69,7 +68,6 @@ export function DropZone({ kind, onKind, onFile, onSample, error }: { kind: Devi
           </li>
         ))}
       </ul>
-      <PaintingCandidates />
       <p className="mt-10 text-xs text-stone-400 dark:text-white/35">Everything stays in your browser. Nothing is uploaded.</p>
       <input
         ref={input}

@@ -64,6 +64,19 @@ Or connect the GitHub repo in the Cloudflare dashboard (Workers & Pages, then Cr
 
 `public/_headers` sets security headers and long-lived caching for the hashed files in `/assets`.
 
-## Sample photos
+## Sample paintings
 
-Photos in `public/samples` are CC0 (public domain) from Wikimedia Commons: Dunes by Breanna Galley, Fog by Mar Mkrtchyan, Ridges by Simon Berger, Golden hour by Johannes Plenio, Lake by Ales Krivec, Snow by Bonnie Moreland.
+The start screen offers public-domain paintings, three portrait ones for iPhone and five landscape ones for Mac. The files come from Wikimedia Commons and are converted to WebP at the size of the largest screen of their device (about 0.8 to 1.6 MB each). A visitor only downloads the one they pick, plus small thumbnails.
+
+| Painting | Artist | Year | Source |
+| --- | --- | --- | --- |
+| Wanderer above the Sea of Fog | Caspar David Friedrich | 1818 | [Commons](https://commons.wikimedia.org/wiki/File:Caspar_David_Friedrich_-_Wanderer_above_the_Sea_of_Fog.jpeg) |
+| Chalk Cliffs on Rügen | Caspar David Friedrich | c. 1818 | [Commons](https://commons.wikimedia.org/wiki/File:Caspar_David_Friedrich_-_Kreidefelsen_auf_R%C3%BCgen_(1818).jpg) |
+| Café Terrace at Night | Vincent van Gogh | 1888 | [Commons](https://commons.wikimedia.org/wiki/File:Van_Gogh_-_Terrace_of_a_Caf%C3%A9_at_Night_(Place_du_Forum)_1888.jpg) |
+| The Ninth Wave | Ivan Aivazovsky | 1850 | [Commons](https://commons.wikimedia.org/wiki/File:Aivazovsky,_Ivan_-_The_Ninth_Wave.jpg) |
+| The Hay Wain | John Constable | 1821 | [Commons](https://commons.wikimedia.org/wiki/File:John_Constable_-_The_Hay_Wain_(1821).jpg) |
+| Impression, Sunrise | Claude Monet | 1872 | [Commons](https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg) |
+| Ophelia | John Everett Millais | 1851–1852 | [Commons](https://commons.wikimedia.org/wiki/File:John_Everett_Millais_-_Ophelia_-_Google_Art_Project.jpg) |
+| The School of Athens | Raphael | 1509–1511 | [Commons](https://commons.wikimedia.org/wiki/File:La_scuola_di_Atene.jpg) |
+
+To change a sample, add a new file under a new name. `/samples` is cached for a year (`public/_headers`).
