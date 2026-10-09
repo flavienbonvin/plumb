@@ -144,6 +144,16 @@ export default function App() {
   }
   const undo = () => follow(hist.undo())
   const redo = () => follow(hist.redo())
+  /** Back to the start screen with a clean slate. The chosen device is kept. */
+  const reset = () => {
+    if (!confirm('Start over? This clears your image and all settings.')) return
+    clear()
+    hist.reset(initialDevices())
+    setStep('place')
+    setCarried(null)
+    setExported({ mac: false, iphone: false })
+    setError(null)
+  }
   const goStep = (s: Step) => {
     setStep(s)
     if (s !== 'export') setCarried(null)
@@ -215,6 +225,10 @@ export default function App() {
             <button type="button" className={btnSecondary} onClick={redo} disabled={!hist.canRedo} title="Redo (⇧⌘Z)">
               <svg {...iconProps}><path d="m15 14 5-5-5-5" /><path d="M20 9H10a6 6 0 0 0 0 12h3" /></svg>
               <span className="max-sm:sr-only">Redo</span>
+            </button>
+            <button type="button" className={btnSecondary} onClick={reset} title="Start over">
+              <svg {...iconProps}><path d="M3 11 12 4l9 7" /><path d="M5 10v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9" /></svg>
+              <span className="max-sm:sr-only">Reset</span>
             </button>
           </div>
         )}
