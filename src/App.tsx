@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Controls } from './components/Controls'
 import { DeviceStage } from './components/DeviceStage'
 import { DropZone } from './components/DropZone'
+import { ImageChip } from './components/ImageChip'
+import { btnSecondary, iconProps } from './components/ui'
 import { ModeSwitch, type Mode } from './components/ModeSwitch'
 import { ThemeToggle } from './components/ThemeToggle'
 import { useHistory } from './hooks/useHistory'
@@ -221,8 +223,6 @@ export default function App() {
   }
 
   const kinds: DeviceKind[] = mode === 'both' ? ['mac', 'iphone'] : [mode]
-  const iconBtn =
-    'grid h-9 w-9 place-items-center rounded-full border border-stone-200 bg-white/70 text-stone-600 transition hover:text-stone-900 disabled:opacity-35 dark:border-white/10 dark:bg-white/5 dark:text-white/60 dark:hover:text-white focus-visible:outline-2 focus-visible:outline-stone-900 dark:focus-visible:outline-white'
   const primary =
     'rounded-full bg-stone-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-stone-700 disabled:opacity-50 dark:bg-white dark:text-stone-900 dark:hover:bg-stone-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900 dark:focus-visible:outline-white'
 
@@ -239,11 +239,13 @@ export default function App() {
         </span>
         {image && (
           <div className="order-3 flex w-full items-center gap-2 sm:order-2 sm:ml-auto sm:w-auto sm:gap-3">
-              <button type="button" className={iconBtn} onClick={hist.undo} disabled={!hist.canUndo} aria-label="Undo" title="Undo (⌘Z)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 14 4 9l5-5" /><path d="M4 9h10a6 6 0 0 1 0 12h-3" /></svg>
+              <button type="button" className={btnSecondary} onClick={hist.undo} disabled={!hist.canUndo} title="Undo (⌘Z)">
+                <svg {...iconProps}><path d="M9 14 4 9l5-5" /><path d="M4 9h10a6 6 0 0 1 0 12h-3" /></svg>
+                Undo
               </button>
-              <button type="button" className={iconBtn} onClick={hist.redo} disabled={!hist.canRedo} aria-label="Redo" title="Redo (⇧⌘Z)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 14 5-5-5-5" /><path d="M20 9H10a6 6 0 0 0 0 12h3" /></svg>
+              <button type="button" className={btnSecondary} onClick={hist.redo} disabled={!hist.canRedo} title="Redo (⇧⌘Z)">
+                <svg {...iconProps}><path d="m15 14 5-5-5-5" /><path d="M20 9H10a6 6 0 0 0 0 12h3" /></svg>
+                Redo
               </button>
               <ModeSwitch value={mode} onChange={setMode} />
           </div>
@@ -265,14 +267,7 @@ export default function App() {
         <main className="mx-auto max-w-[1500px] px-4 pb-32 sm:px-8 lg:pb-16">
           <h1 className="sr-only">Wallpaper preview and export</h1>
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-            <p className="min-w-0 truncate text-sm text-stone-500 dark:text-white/50">
-              {image.name} · {image.bitmap.width}×{image.bitmap.height}
-              <label className="ml-3 cursor-pointer font-medium text-stone-900 underline-offset-2 hover:underline focus-within:underline dark:text-white">
-                Change
-                <input type="file" accept="image/*,.heic,.heif" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) open(f); e.target.value = '' }} />
-              </label>
-              <button type="button" onClick={clear} className="-my-1.5 ml-3 py-1.5 underline-offset-2 hover:underline">Remove</button>
-            </p>
+            <ImageChip image={image.preview} width={image.bitmap.width} height={image.bitmap.height} onReplace={open} onRemove={clear} />
             <div className="hidden items-center gap-3 lg:flex">
               <label className="flex items-center gap-2 text-xs text-stone-500 dark:text-white/50">
                 Format
