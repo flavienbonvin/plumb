@@ -119,8 +119,8 @@ export default function App() {
       const t = e.target as HTMLElement
       if (t instanceof HTMLInputElement && t.type !== 'range' && t.type !== 'checkbox') return
       const k = e.key.toLowerCase()
-      if (k === 'z') { e.preventDefault(); e.shiftKey ? hist.redo() : hist.undo() }
-      else if (k === 'y') { e.preventDefault(); hist.redo() }
+      if (k === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo() }
+      else if (k === 'y') { e.preventDefault(); redo() }
     }
     addEventListener('keydown', key)
     return () => removeEventListener('keydown', key)
@@ -136,6 +136,14 @@ export default function App() {
     setStep('export')
     setCarried(kind)
   }
+  /** Undo and redo cover both devices. If the change was on the other device, switch to it so it is visible. */
+  const follow = (c: { from: Devices; to: Devices } | undefined) => {
+    if (!c) return
+    const changed = (['mac', 'iphone'] as DeviceKind[]).filter((k) => c.from[k] !== c.to[k])
+    if (changed.length && !changed.includes(kind)) switchKind(changed[0])
+  }
+  const undo = () => follow(hist.undo())
+  const redo = () => follow(hist.redo())
   const goStep = (s: Step) => {
     setStep(s)
     if (s !== 'export') setCarried(null)
@@ -200,11 +208,11 @@ export default function App() {
         </span>
         {image && (
           <div className="ml-auto flex items-center gap-2">
-            <button type="button" className={btnSecondary} onClick={hist.undo} disabled={!hist.canUndo} title="Undo (⌘Z)">
+            <button type="button" className={btnSecondary} onClick={undo} disabled={!hist.canUndo} title="Undo (⌘Z)">
               <svg {...iconProps}><path d="M9 14 4 9l5-5" /><path d="M4 9h10a6 6 0 0 1 0 12h-3" /></svg>
               <span className="max-sm:sr-only">Undo</span>
             </button>
-            <button type="button" className={btnSecondary} onClick={hist.redo} disabled={!hist.canRedo} title="Redo (⇧⌘Z)">
+            <button type="button" className={btnSecondary} onClick={redo} disabled={!hist.canRedo} title="Redo (⇧⌘Z)">
               <svg {...iconProps}><path d="m15 14 5-5-5-5" /><path d="M20 9H10a6 6 0 0 0 0 12h3" /></svg>
               <span className="max-sm:sr-only">Redo</span>
             </button>

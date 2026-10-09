@@ -2,6 +2,8 @@ import { useCallback, useRef, useState } from 'react'
 
 const COALESCE_MS = 600
 
+export interface Change<T> { from: T; to: T }
+
 /** State with undo / redo. Rapid consecutive changes (dragging, sliders) collapse into one step. */
 export function useHistory<T>(initial: T) {
   const [present, setPresent] = useState(initial)
@@ -25,24 +27,29 @@ export function useHistory<T>(initial: T) {
     bump((n) => n + 1)
   }, [])
 
-  const undo = useCallback(() => {
+  /** Step back. Returns the state before and after, so callers can show what changed. */
+  const undo = useCallback((): Change<T> | undefined => {
     const prev = past.current.pop()
     if (prev === undefined) return
-    future.current.push(cur.current)
+    const from = cur.current
+    future.current.push(from)
     cur.current = prev
     last.current = 0
     setPresent(prev)
     bump((n) => n + 1)
+    return { from, to: prev }
   }, [])
 
-  const redo = useCallback(() => {
+  const redo = useCallback((): Change<T> | undefined => {
     const next = future.current.pop()
     if (next === undefined) return
-    past.current.push(cur.current)
+    const from = cur.current
+    past.current.push(from)
     cur.current = next
     last.current = 0
     setPresent(next)
     bump((n) => n + 1)
+    return { from, to: next }
   }, [])
 
   /** Replace the state and wipe history. */
