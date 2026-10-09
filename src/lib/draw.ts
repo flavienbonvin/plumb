@@ -115,28 +115,40 @@ function drawCover(ctx: CanvasRenderingContext2D, img: Source, a: Adjust, r: Rec
   ctx.drawImage(img, dx, dy, dw, dh)
 }
 
+/** Mac menu bar height, as a share of the screen width. The top of the frame is at least this tall. */
+const MENU_BAR = 0.0185
+/** iPhone frames are thicker than Mac ones, so they stay visible next to the rounded corners. */
+const IPHONE_FRAME_SCALE = 2.1
+/** iPhone screen corner radius, as a share of the screen width. */
+const SCREEN_RADIUS = 0.13
+
 /**
  * Geometry of the picture viewport for a canvas of w×h.
- * In plain mode the viewport is the whole canvas; in frame mode the moulding runs
- * along the screen edge, then the paper mat, then the picture window.
+ * Without a frame the viewport is the whole canvas. With one, the moulding runs along the screen edge,
+ * then the paper mat, then the picture window. On a Mac the top moulding covers the menu bar. On an
+ * iPhone the moulding, mat and window follow the rounded corners of the screen.
  */
-export function layout(_img: Source, w: number, h: number, f: FrameSettings) {
+export function layout(_img: Source, w: number, h: number, f: FrameSettings, kind: DeviceKind) {
   const full = { x: 0, y: 0, w, h }
-  if (!f.enabled) return { view: full, mat: null as Rect | null, outer: null as Rect | null, frameT: 0, matT: 0 }
+  if (!f.enabled) return { view: full, mat: null as Rect | null, matR: 0, viewR: 0 }
   const short = Math.min(w, h)
-  const frameT = (f.frameWidth / 100) * short
+  const phone = kind === 'iphone'
+  const side = ((f.frameWidth * (phone ? IPHONE_FRAME_SCALE : 1)) / 100) * short
+  const top = kind === 'mac' ? Math.max(side, w * MENU_BAR) : side
   const matT = (f.matWidth / 100) * short
-  const inset = frameT + matT
   // optical centre: slightly more paper at the bottom, as in a gallery
   const bottomExtra = matT * 0.22
   const view = {
-    x: inset,
-    y: inset,
-    w: Math.max(8, w - 2 * inset),
-    h: Math.max(8, h - 2 * inset - bottomExtra),
+    x: side + matT,
+    y: top + matT,
+    w: Math.max(8, w - 2 * (side + matT)),
+    h: Math.max(8, h - (top + matT) - (side + matT) - bottomExtra),
   }
-  const mat = { x: frameT, y: frameT, w: w - 2 * frameT, h: h - 2 * frameT }
-  return { view, mat, outer: full, frameT, matT }
+  const mat = { x: side, y: top, w: w - 2 * side, h: h - top - side }
+  const radius = phone ? SCREEN_RADIUS * w : 0
+  const matR = Math.max(0, radius - side)
+  const viewR = phone ? Math.max(short * 0.012, radius - side - matT) : 0
+  return { view, mat, matR, viewR }
 }
 
 function find(list: Swatch[], id: string) {
@@ -146,14 +158,22 @@ function find(list: Swatch[], id: string) {
 /** Draws the wallpaper at the canvas' own resolution. Used for preview and export alike. */
 export function drawWallpaper(ctx: CanvasRenderingContext2D, img: Source, w: number, h: number, s: DeviceSettings, kind: DeviceKind) {
   const f = s.frame
-  const L = layout(img, w, h, f)
+  const L = layout(img, w, h, f, kind)
   ctx.save()
   ctx.clearRect(0, 0, w, h)
-  drawPicture(ctx, img, w, h, s, L)
+  // The picture, the look and the grain cover a plain rectangle. The frame is painted afterwards with a
+  // hole for the picture, so rounded corners never pick up the look.
+  ctx.save()
+  ctx.beginPath()
+  ctx.rect(L.view.x, L.view.y, L.view.w, L.view.h)
+  ctx.clip()
+  drawCover(ctx, img, s.adjust, L.view)
+  ctx.restore()
   if (hasFinish(s.finish)) {
     applyGrade(ctx, L.view, s.finish)
     overlayFinish(ctx, L.view, s.finish, Math.min(w, h))
   }
+  if (f.enabled) drawFrame(ctx, w, h, s, L)
   drawScrim(ctx, w, h, s.scrim, kind)
   ctx.restore()
 }
@@ -174,19 +194,35 @@ function drawScrim(ctx: CanvasRenderingContext2D, w: number, h: number, amount: 
   ctx.fillRect(0, 0, w, end)
 }
 
-function drawPicture(ctx: CanvasRenderingContext2D, img: Source, w: number, h: number, s: DeviceSettings, L: ReturnType<typeof layout>) {
+function rrPath(ctx: CanvasRenderingContext2D, r: Rect, radius: number) {
+  const k = Math.max(0, Math.min(radius, r.w / 2, r.h / 2))
+  ctx.moveTo(r.x + k, r.y)
+  ctx.arcTo(r.x + r.w, r.y, r.x + r.w, r.y + r.h, k)
+  ctx.arcTo(r.x + r.w, r.y + r.h, r.x, r.y + r.h, k)
+  ctx.arcTo(r.x, r.y + r.h, r.x, r.y, k)
+  ctx.arcTo(r.x, r.y, r.x + r.w, r.y, k)
+  ctx.closePath()
+}
+
+function rr(ctx: CanvasRenderingContext2D, r: Rect, radius: number) {
+  ctx.beginPath()
+  rrPath(ctx, r, radius)
+}
+
+/** The moulding, the paper mat and the bevel, with a (possibly rounded) hole where the picture shows. */
+function drawFrame(ctx: CanvasRenderingContext2D, w: number, h: number, s: DeviceSettings, L: ReturnType<typeof layout>) {
   const f = s.frame
-
-  if (!f.enabled) {
-    drawCover(ctx, img, s.adjust, L.view)
-    return
-  }
-
   const short = Math.min(w, h)
-  const { view, frameT } = L
+  const { view, matR, viewR } = L
   const mat = L.mat!
   const frameHex = find(FRAME_COLORS, f.frameColor)
   const matHex = find(MAT_COLORS, f.matColor)
+
+  ctx.save()
+  ctx.beginPath()
+  ctx.rect(0, 0, w, h)
+  rrPath(ctx, view, viewR)
+  ctx.clip('evenodd')
 
   // moulding along the screen edge: light top-left, dark bottom-right
   const lg = ctx.createLinearGradient(0, 0, w, h)
@@ -197,28 +233,30 @@ function drawPicture(ctx: CanvasRenderingContext2D, img: Source, w: number, h: n
   ctx.fillRect(0, 0, w, h)
 
   // paper mat with a faint inner shadow where it meets the moulding
+  rr(ctx, mat, matR)
   ctx.fillStyle = matHex
-  ctx.fillRect(mat.x, mat.y, mat.w, mat.h)
+  ctx.fill()
+  ctx.save()
+  ctx.clip()
   const lip = Math.max(2, short * 0.005)
   const sg = ctx.createLinearGradient(0, mat.y, 0, mat.y + lip)
   sg.addColorStop(0, 'rgba(0,0,0,0.16)')
   sg.addColorStop(1, 'rgba(0,0,0,0)')
   ctx.fillStyle = sg
   ctx.fillRect(mat.x, mat.y, mat.w, lip)
-  void frameT
+  ctx.restore()
 
   // bevel cut of the mat window: bright chamfer on the paper edge
   const bev = Math.max(1.5, short * 0.0028)
+  rr(ctx, { x: view.x - bev, y: view.y - bev, w: view.w + 2 * bev, h: view.h + 2 * bev }, viewR + bev)
   ctx.fillStyle = mix(matHex, matHex === '#1d1d1e' ? '#555555' : '#ffffff', 0.7)
-  ctx.fillRect(view.x - bev, view.y - bev, view.w + 2 * bev, view.h + 2 * bev)
+  ctx.fill()
+  ctx.restore()
 
-  // the picture
-  ctx.save()
-  ctx.beginPath()
-  ctx.rect(view.x, view.y, view.w, view.h)
-  ctx.clip()
-  drawCover(ctx, img, s.adjust, view)
   // recessed look: shadow cast by the mat onto the picture
+  ctx.save()
+  rr(ctx, view, viewR)
+  ctx.clip()
   const d = Math.max(3, short * 0.012)
   const top = ctx.createLinearGradient(0, view.y, 0, view.y + d)
   top.addColorStop(0, 'rgba(0,0,0,0.28)')

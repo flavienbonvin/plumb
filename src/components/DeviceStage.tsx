@@ -38,7 +38,7 @@ export function DeviceStage({ model, image, settings, view, blur, onChange, onLe
   const graded = useGradedSource(image, settings.finish.look, settings.finish.intensity)
   const lastGraded = useRef(graded)
   const { w: iw, h: ih } = srcSize(image)
-  const L = layout(image, pw, ph, settings.frame)
+  const L = layout(image, pw, ph, settings.frame, model.kind)
 
   useEffect(() => {
     const c = canvas.current
@@ -59,7 +59,7 @@ export function DeviceStage({ model, image, settings, view, blur, onChange, onLe
       // the graded copy already carries the look, so only vignette and grain remain to draw
       drawWallpaper(ctx, graded, pw, ph, { ...settings, finish: { ...settings.finish, look: 'none' } }, model.kind)
       const l = view === 'lock' ? measureLegibility(c, clockZone(model.kind, model.w, model.h)) : null
-      if (view === 'alt' && mac) setBright(isBright(c, { x0: 0, x1: 1, y0: 0, y1: 0.03 }))
+      if (mac && view !== 'off') setBright(isBright(c, { x0: 0, x1: 1, y0: 0, y1: 0.03 }))
       setLevel(l)
       report.current?.(l)
       if (g && fade) {
@@ -112,7 +112,7 @@ export function DeviceStage({ model, image, settings, view, blur, onChange, onLe
           style={{ left: `${zone.x0 * 100}%`, right: `${(1 - zone.x1) * 100}%`, top: `${zone.y0 * 100}%`, height: `${(zone.y1 - zone.y0) * 100}%` }}
         />
       )}
-      {view === 'lock' && (mac ? <MacLockOverlay notch={!!model.notch} /> : <IPhoneLockOverlay pt={model.pt} island={model.island} notch={model.notchPt} />)}
+      {view === 'lock' && (mac ? <MacLockOverlay notch={!!model.notch} dark={settings.frame.enabled && bright} /> : <IPhoneLockOverlay pt={model.pt} island={model.island} notch={model.notchPt} />)}
       {view === 'alt' && !mac && blur && (
         <div className="pointer-events-none absolute inset-0" style={{ containerType: 'inline-size' }} aria-hidden>
           <div className="absolute inset-0 bg-black/10" style={{ backdropFilter: 'blur(5cqw) saturate(1.1)', WebkitBackdropFilter: 'blur(5cqw) saturate(1.1)' }} />

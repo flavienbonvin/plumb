@@ -33,7 +33,7 @@ export function filename(kind: 'mac' | 'iphone', format: Format) {
 /** How many output pixels each source pixel is stretched to (>1 means upscaling). */
 export function upscaleFactor(img: Source, model: DeviceModel, s: DeviceSettings): number {
   const { w: iw, h: ih } = srcSize(img)
-  const L = layout(img, model.w, model.h, s.frame)
+  const L = layout(img, model.w, model.h, s.frame, model.kind)
   const a = clampAdjust(s.adjust, iw, ih, L.view.w, L.view.h)
   return Math.max(L.view.w / iw, L.view.h / ih) * a.zoom
 }

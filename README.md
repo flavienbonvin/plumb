@@ -16,7 +16,7 @@ Each device keeps its own settings, so switching back restores them.
 
 - **Previews** for each device: lock screen, Mac desktop (menu bar and Dock) or iPhone home screen, or the plain wallpaper. Models: MacBook Neo, Air 13″ and 15″, Pro 14″ and 16″, 4K and 5K displays, and iPhones from the 15 to the 18 Pro Max (including the Air, 16e and 17e), plus custom sizes.
 - **Position**: drag, scroll or pinch to zoom, arrow keys to nudge. The image snaps to the centre lines.
-- **Frame**: a black, oak or white gallery frame with a paper mat, or none.
+- **Frame**: a black, oak or white gallery frame with a paper mat, or none. On a Mac the top of the frame covers the menu bar. On an iPhone the frame is thicker and follows the rounded corners of the screen.
 - **Looks**: film looks inspired by Fujifilm simulations (Provia, Velvia, Astia, Classic Chrome, Classic Neg., Eterna, Acros), with grain and vignette. A new look cross-fades in.
 - **Clock check**: warns when white lock screen text will be hard to read and can add a soft shade behind it.
 - **Export**: PNG or JPEG in Display P3, named `plumb-mac` and `plumb-iphone`. Share through the system share sheet (AirDrop, Save to Photos) where the browser supports it.
