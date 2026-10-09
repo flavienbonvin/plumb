@@ -62,6 +62,17 @@ SITE_URL=https://your-domain pnpm deploy
 
 Or connect the GitHub repo in the Cloudflare dashboard (Workers & Pages, then Create, then Import a repository) with `pnpm build` as the build command and `npx wrangler deploy` as the deploy command. Set `SITE_URL` as a build variable there.
 
+## SEO
+
+The app is a single page, so SEO stays simple and needs no server rendering:
+
+- `index.html` carries the title, description, canonical link, Open Graph and Twitter tags and a `WebApplication` description (JSON-LD). It also holds a short block of visible-to-crawlers text inside `#root`, which the app replaces as soon as it loads. Keep that text in step with the start screen in `DropZone.tsx`.
+- `robots.txt` and `sitemap.xml` are written at build time from `SITE_URL`, so they always carry the right domain.
+- Unknown URLs return a real 404 (`public/404.html`, `not_found_handling: "404-page"` in `wrangler.jsonc`), not the app.
+- The social image is `public/social-preview.png` (1200 × 630). Platforms cache previews by URL, so give a changed image a new file name.
+
+After the first deploy, add the site to Google Search Console, submit `/sitemap.xml`, and request indexing of the home page.
+
 `public/_headers` sets security headers and long-lived caching for the hashed files in `/assets`.
 
 ## Sample paintings

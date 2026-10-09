@@ -4,23 +4,46 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
-    <title>Plumb: preview your wallpaper on a real Mac and iPhone lock screen</title>
-    <meta name="description" content="Drop an image, see it behind the clock on a Mac or iPhone lock screen, frame it, give it a film look, and export it at native resolution. Free, and everything stays in your browser." />
+    <title>Plumb: preview a wallpaper on a Mac or iPhone lock screen</title>
+    <meta name="description" content="Drop an image and see it behind the clock on a Mac or iPhone lock screen. Add a frame or a film look, then export at native resolution. Free and private." />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="%SITE_URL%/" />
     <meta name="theme-color" content="#f5f4f1" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Plumb" />
+    <meta property="og:url" content="%SITE_URL%/" />
     <meta property="og:title" content="Plumb: see your wallpaper on the lock screen first" />
     <meta property="og:description" content="Preview, frame and export wallpapers for Mac and iPhone. Free, private, in your browser." />
     <meta property="og:image" content="%SITE_URL%/social-preview.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="A MacBook and an iPhone showing paintings behind the lock screen clock, with the headline: See it on the lock screen first." />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Plumb: see your wallpaper on the lock screen first" />
     <meta name="twitter:description" content="Preview, frame and export wallpapers for Mac and iPhone." />
     <meta name="twitter:image" content="%SITE_URL%/social-preview.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Plumb",
+        "url": "%SITE_URL%/",
+        "description": "Preview a wallpaper behind the clock on a Mac or iPhone lock screen, add a frame or a film look, and export it at native resolution.",
+        "applicationCategory": "DesignApplication",
+        "operatingSystem": "Any, runs in the browser",
+        "browserRequirements": "Requires JavaScript",
+        "inLanguage": "en",
+        "image": "%SITE_URL%/social-preview.png",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
+    <style>
+      /* Text for crawlers and screen readers until the app has loaded. The app replaces it. */
+      .seo { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    </style>
     <script>
       try {
         var p = localStorage.getItem('theme') || 'system';
@@ -30,7 +53,19 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <main class="seo">
+        <h1>Fit any image to your lock screen</h1>
+        <p>Drop, browse or paste an image. Preview it on your Mac or iPhone, then export.</p>
+        <ul>
+          <li>See it before you set it: live lock screen, desktop and home screen previews for recent Macs and iPhones.</li>
+          <li>Frame it, give it a look: gallery frames with a paper mat, and film looks inspired by Fujifilm.</li>
+          <li>Export it exactly: native resolution in Display P3, one file for each device.</li>
+        </ul>
+        <p>Everything stays in your browser. Nothing is uploaded.</p>
+      </main>
+    </div>
+    <noscript>Plumb needs JavaScript to run. It does everything in your browser, and nothing is uploaded.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
