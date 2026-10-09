@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import type { Finish } from '../lib/draw'
 import type { DeviceKind, DeviceModel } from '../lib/devices'
 import type { Format } from '../lib/export'
@@ -9,7 +9,7 @@ import { DeviceStage } from './DeviceStage'
 import { ExportStep } from './ExportStep'
 import { PlaceStep } from './PlaceStep'
 import { PreviewSwitch } from './PreviewSwitch'
-import { StepPanel } from './StepPanel'
+import { StepPanel, type StepDir } from './StepPanel'
 import { Stepper, STEPS } from './Stepper'
 import { StyleStep } from './StyleStep'
 import { btnSecondary } from './ui'
@@ -48,6 +48,10 @@ export function Wizard(p: Props) {
   const i = STEPS.findIndex((s) => s.id === step)
   const prev = STEPS[i - 1]
   const next = STEPS[i + 1]
+  // Direction of the last step change. Kept in state so re-renders do not restart the animation.
+  const [nav, setNav] = useState<{ step: Step; dir: StepDir }>({ step, dir: 'none' })
+  if (nav.step !== step) setNav({ step, dir: i > STEPS.findIndex((s) => s.id === nav.step) ? 'fwd' : 'back' })
+  const dir = nav.step === step ? nav.dir : 'none'
   const setSettings = (settings: typeof d.settings) => p.onPatch({ settings })
 
   const footer: ReactNode = (
@@ -65,8 +69,8 @@ export function Wizard(p: Props) {
   return (
     <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
       <div className="sticky top-0 z-30 -mx-4 flex min-w-0 flex-col items-center gap-3 bg-stone-100 px-4 pt-2 pb-3 sm:-mx-8 sm:px-8 lg:top-6 lg:mx-0 lg:gap-5 lg:bg-transparent lg:p-0 dark:bg-neutral-950 dark:lg:bg-transparent">
-        <div className="flex w-full justify-center">
-          <DeviceStage key={kind} model={model} image={image.preview} settings={d.settings} view={d.view} blur={d.homeBlur} onChange={setSettings} onLegibility={p.onLevel} maxVh={40} />
+        <div key={kind} className="stage-enter flex w-full justify-center">
+          <DeviceStage model={model} image={image.preview} settings={d.settings} view={d.view} blur={d.homeBlur} onChange={setSettings} onLegibility={p.onLevel} maxVh={40} />
         </div>
         <PreviewSwitch kind={kind} value={d.view} onChange={(view) => p.onPatch({ view })} />
       </div>
@@ -74,7 +78,7 @@ export function Wizard(p: Props) {
       <div className="min-w-0 space-y-4">
         <Stepper step={step} onStep={p.onStep} />
         {step === 'place' && (
-          <StepPanel title="Place" hint="Pick the device, then zoom and move the image." footer={footer}>
+          <StepPanel dir={dir} title="Place" hint="Pick the device, then zoom and move the image." footer={footer}>
             <PlaceStep
               kind={kind} onKind={p.onKind} image={image.preview} width={image.bitmap.width} height={image.bitmap.height}
               onReplace={p.onReplace} onRemove={p.onRemove}
@@ -84,7 +88,7 @@ export function Wizard(p: Props) {
           </StepPanel>
         )}
         {step === 'style' && (
-          <StepPanel title="Style" hint="Give it a look. The preview updates as you go." footer={footer}>
+          <StepPanel dir={dir} title="Style" hint="Give it a look. The preview updates as you go." footer={footer}>
             <StyleStep
               image={image.preview} settings={d.settings} onSettings={setSettings} onFinish={p.onFinish} view={d.view} level={p.level}
               showBlur={kind === 'iphone' && d.view === 'alt'} homeBlur={d.homeBlur} onHomeBlur={(homeBlur) => p.onPatch({ homeBlur })}
@@ -92,7 +96,7 @@ export function Wizard(p: Props) {
           </StepPanel>
         )}
         {step === 'export' && (
-          <StepPanel title="Export" hint="Save the file at the screen's native resolution." footer={footer}>
+          <StepPanel dir={dir} title="Export" hint="Save the file at the screen's native resolution." footer={footer}>
             <ExportStep model={model} format={p.format} onFormat={p.onFormat} upscale={p.upscale} busy={p.busy} exported={p.exported} onDownload={p.onDownload} onShare={p.onShare} saved={p.saved} carriedFrom={p.carriedFrom} onAdjust={() => p.onStep('place')} onCreateOther={p.onCreateOther} />
           </StepPanel>
         )}

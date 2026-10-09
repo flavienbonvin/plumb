@@ -25,6 +25,7 @@ interface Props {
 export function DeviceStage({ model, image, settings, view, blur, onChange, onLegibility, maxVh }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const stage = useRef<HTMLDivElement>(null)
+  const ghost = useRef<HTMLCanvasElement>(null)
   const [snap, setSnap] = useState({ x: false, y: false })
   const mac = model.kind === 'mac'
   const [level, setLevel] = useState<Legibility | null>(null)
@@ -37,6 +38,7 @@ export function DeviceStage({ model, image, settings, view, blur, onChange, onLe
   const pw = mac ? 1600 : 720
   const ph = Math.round((pw * model.h) / model.w)
   const graded = useGradedSource(image, settings.finish.look, settings.finish.intensity)
+  const lastGraded = useRef(graded)
   const { w: iw, h: ih } = srcSize(image)
   const L = layout(image, pw, ph, settings.frame)
 
@@ -44,6 +46,17 @@ export function DeviceStage({ model, image, settings, view, blur, onChange, onLe
     const c = canvas.current
     if (!c) return
     const id = requestAnimationFrame(() => {
+      // A new look or image arrived: keep the old picture on top for a moment and fade it out.
+      const g = ghost.current
+      const fade = g && lastGraded.current !== graded
+      lastGraded.current = graded
+      if (g && fade) {
+        g.width = c.width
+        g.height = c.height
+        get2dP3(g).drawImage(c, 0, 0)
+        g.style.transition = 'none'
+        g.style.opacity = '1'
+      }
       const ctx = get2dP3(c)
       // the graded copy already carries the look, so only vignette and grain remain to draw
       drawWallpaper(ctx, graded, pw, ph, { ...settings, finish: { ...settings.finish, look: 'none' } }, model.kind)
@@ -51,6 +64,11 @@ export function DeviceStage({ model, image, settings, view, blur, onChange, onLe
       if (view === 'alt' && mac) setBright(isBright(c, { x0: 0, x1: 1, y0: 0, y1: 0.03 }))
       setLevel(l)
       report.current?.(l)
+      if (g && fade) {
+        void g.offsetWidth
+        g.style.transition = 'opacity 180ms ease-out'
+        g.style.opacity = '0'
+      }
     })
     return () => cancelAnimationFrame(id)
   }, [graded, settings, pw, ph, model.kind, model.w, model.h, view, mac])
@@ -80,6 +98,7 @@ export function DeviceStage({ model, image, settings, view, blur, onChange, onLe
       }`}
     >
       <canvas ref={canvas} width={pw} height={ph} className="absolute inset-0 h-full w-full" />
+      <canvas ref={ghost} aria-hidden className="pointer-events-none absolute inset-0 h-full w-full opacity-0" />
       {(snap.x || snap.y) && (
         <div className="pointer-events-none absolute" style={{ left: `${(L.view.x / pw) * 100}%`, top: `${(L.view.y / ph) * 100}%`, width: `${(L.view.w / pw) * 100}%`, height: `${(L.view.h / ph) * 100}%` }}>
           {snap.x && <div className="absolute inset-y-0 left-1/2 w-px bg-cyan-300 shadow-[0_0_4px_rgba(34,211,238,.9)]" />}

@@ -1,6 +1,10 @@
 import type { ReactNode } from 'react'
 
+export type StepDir = 'fwd' | 'back' | 'none'
+
 interface Props {
+  /** Which way the user moved, so the content slides in from the right place. */
+  dir: StepDir
   title: string
   hint: string
   children: ReactNode
@@ -8,10 +12,10 @@ interface Props {
 }
 
 /** The card on the right: a heading, the step's controls, and a footer with Back / Next. */
-export function StepPanel({ title, hint, children, footer }: Props) {
+export function StepPanel({ dir, title, hint, children, footer }: Props) {
   return (
     <section aria-labelledby="step-title" className="rounded-2xl border border-stone-200 bg-white/70 dark:border-white/10 dark:bg-white/[0.04]">
-      <div className="grid gap-5 p-5">
+      <div className={`grid gap-5 p-5 ${dir === 'fwd' ? 'step-in-fwd' : dir === 'back' ? 'step-in-back' : ''}`}>
         <header>
           <h2 id="step-title" tabIndex={-1} className="font-display text-lg font-semibold tracking-tight outline-none">{title}</h2>
           <p className="mt-0.5 text-sm text-stone-500 dark:text-white/50">{hint}</p>

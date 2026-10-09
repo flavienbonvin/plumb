@@ -19,3 +19,11 @@ input[type="range"] { accent-color: currentColor; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Motion: short, and each one shows where you are or what changed. */
+@keyframes step-in-fwd { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+@keyframes step-in-back { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+@keyframes stage-enter { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: none; } }
+.step-in-fwd { animation: step-in-fwd 220ms ease-out both; }
+.step-in-back { animation: step-in-back 220ms ease-out both; }
+.stage-enter { animation: stage-enter 300ms ease-out both; }
