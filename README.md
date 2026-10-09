@@ -73,7 +73,7 @@ The app is a single page, so SEO stays simple and needs no server rendering:
 
 After the first deploy, add the site to Google Search Console, submit `/sitemap.xml`, and request indexing of the home page.
 
-`public/_headers` sets security headers and long-lived caching for the hashed files in `/assets`.
+`public/_headers` sets security headers and caching. The hashed files in `/assets`, the sample paintings and the social image are cached for a year (give a changed one a new file name). Icons are cached for a day, `robots.txt` and `sitemap.xml` for an hour, and the HTML is always re-checked so a deploy shows up at once.
 
 ## Sample paintings
 
