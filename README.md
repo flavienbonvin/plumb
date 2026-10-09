@@ -23,3 +23,19 @@ pnpm build      # static output in dist/
 - Resolutions live in `src/lib/devices.ts`. Sizes were checked against Apple's spec page (MacBook Neo) and Wikipedia (iPhone 18 Pro / Pro Max). The base 18 and Air aren't listed yet.
 - Preview and export share one drawing function (`src/lib/draw.ts`), so the crop matches exactly.
 - Stack: Vite, React, TypeScript, Tailwind CSS v4.
+
+## Deploy (Cloudflare)
+
+The app is a static site, served by Cloudflare Workers static assets (`wrangler.jsonc`, output in `dist/`).
+
+```sh
+pnpm exec wrangler login   # once
+pnpm deploy                # builds, then uploads dist/
+```
+
+Or connect the GitHub repo in the Cloudflare dashboard (Workers & Pages → Create → Import a repository) with:
+
+- Build command: `pnpm build`
+- Deploy command: `npx wrangler deploy`
+
+`public/_headers` sets security headers and long-lived caching for the hashed files in `/assets`.

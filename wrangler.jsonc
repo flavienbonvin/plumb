@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "plumb",
+  "compatibility_date": "2026-10-09",
+  // Static single-page app: Cloudflare serves ./dist directly, no worker code.
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
