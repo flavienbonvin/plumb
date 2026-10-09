@@ -42,13 +42,13 @@ export function ExportStep({ model, format, onFormat, upscale, busy, exported, o
   const other: DeviceKind = kind === 'mac' ? 'iphone' : 'mac'
   return (
     <>
-      <Reveal show={!!carriedFrom} gap="1.25rem">
+      <Reveal show={!!carriedFrom} space="1.25rem">
         <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-900 dark:bg-emerald-400/10 dark:text-emerald-200">
           Started from your {carriedFrom ? name(carriedFrom) : ''} wallpaper: same look, frame and position.{' '}
           <button type="button" onClick={onAdjust} className="font-medium underline underline-offset-2">Adjust position</button>
         </p>
       </Reveal>
-      <Reveal show={view === 'lock' && !!level && level !== 'good' && scrim === 0} gap="1.25rem">
+      <Reveal show={view === 'lock' && !!level && level !== 'good' && scrim === 0} space="1.25rem">
         <p role="status" className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-400/10 dark:text-amber-200">
           The clock may be hard to read on this photo.{' '}
           <button type="button" onClick={onFixClock} className="font-medium underline underline-offset-2">Add a shade in Style</button>

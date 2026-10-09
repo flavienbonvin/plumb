@@ -15,7 +15,7 @@ interface Props {
 export function StepPanel({ dir, title, hint, children, footer }: Props) {
   return (
     <section aria-labelledby="step-title" className="rounded-2xl border border-stone-200 bg-white/70 dark:border-white/10 dark:bg-white/[0.04]">
-      <div className={`grid gap-5 p-5 ${dir === 'fwd' ? 'step-in-fwd' : dir === 'back' ? 'step-in-back' : ''}`}>
+      <div className={`flex flex-col p-5 [&>*+*]:mt-5 ${dir === 'fwd' ? 'step-in-fwd' : dir === 'back' ? 'step-in-back' : ''}`}>
         <header>
           <h2 id="step-title" tabIndex={-1} className="font-display text-xl font-medium outline-none">{title}</h2>
           <p className="mt-0.5 text-sm text-stone-500 dark:text-white/50">{hint}</p>

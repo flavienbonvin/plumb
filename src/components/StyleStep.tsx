@@ -29,12 +29,12 @@ export function StyleStep({ image, model, settings, onSettings, onFinish, view, 
   return (
     <>
       <LookStrip image={image} finish={finish} settings={settings} model={model} onChange={onFinish} />
-      <Reveal show={finish.look !== 'none'} gap="1.25rem">
+      <Reveal show={finish.look !== 'none'} space="1.25rem">
         <Slider label="Look strength" value={finish.intensity} min={0} max={1} step={0.05} onChange={(intensity) => set({ intensity })} format={pct} />
       </Reveal>
       <Slider label="Grain" value={finish.grain} min={0} max={1} step={0.05} onChange={(grain) => set({ grain })} format={pct} />
       <Slider label="Vignette" value={finish.vignette} min={0} max={1} step={0.05} onChange={(vignette) => set({ vignette })} format={pct} />
-      <Reveal show={hasFinish(finish)} gap="1.25rem">
+      <Reveal show={hasFinish(finish)} space="1.25rem">
         <button type="button" onClick={() => onFinish(DEFAULT_FINISH)} className="py-1.5 text-xs font-medium text-stone-500 underline-offset-2 hover:underline dark:text-white/50">
           Remove look
         </button>
@@ -45,7 +45,7 @@ export function StyleStep({ image, model, settings, onSettings, onFinish, view, 
       </div>
 
       <ClockStatus view={view} level={level} settings={settings} onSettings={onSettings} />
-      <Reveal show={showBlur} gap="1.25rem">
+      <Reveal show={showBlur} space="1.25rem">
         <div className="border-t border-stone-200 pt-3 dark:border-white/10">
           <Switch checked={homeBlur} onChange={onHomeBlur} label="Blur wallpaper" />
           <p className="text-xs text-stone-400 dark:text-white/40">Preview of the iOS home screen blur. iOS applies it itself; the file is unchanged.</p>

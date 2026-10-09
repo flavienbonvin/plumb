@@ -65,9 +65,9 @@ export function PlaceStep({ kind, onKind, image, width, height, onReplace, onRem
         </details>
       </div>
 
-      <div className="grid gap-3">
+      <div className="flex flex-col [&>*+*]:mt-3">
         <Slider label="Zoom" value={adjust.zoom} min={1} max={MAX_ZOOM} step={0.01} onChange={(zoom) => onSettings({ ...settings, adjust: { ...adjust, zoom } })} format={(v) => `${Math.round(v * 100)}%`} />
-        <QualityNote upscale={upscale} gap="0.75rem" />
+        <QualityNote upscale={upscale} space="0.75rem" />
         <p className="text-xs text-stone-400 dark:text-white/40">Drag the preview to move the image. It snaps to the centre.</p>
         <button type="button" onClick={() => onSettings({ ...settings, adjust: DEFAULT_ADJUST })} className="justify-self-start py-1.5 text-xs font-medium text-stone-500 underline-offset-2 hover:underline dark:text-white/50">
           Reset position
