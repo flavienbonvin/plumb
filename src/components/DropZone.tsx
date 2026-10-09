@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import type { DeviceKind } from '../lib/devices'
 import { SAMPLES, sampleThumb, type Sample } from '../lib/samples'
 import { DeviceSwitch } from './DeviceSwitch'
+import { PaintingCandidates } from './PaintingCandidates'
 
 function Thumb({ sample, onPick }: { sample: Sample; onPick: (s: Sample) => void }) {
   return (
@@ -68,6 +69,7 @@ export function DropZone({ kind, onKind, onFile, onSample, error }: { kind: Devi
           </li>
         ))}
       </ul>
+      <PaintingCandidates />
       <p className="mt-10 text-xs text-stone-400 dark:text-white/35">Everything stays in your browser. Nothing is uploaded.</p>
       <input
         ref={input}
