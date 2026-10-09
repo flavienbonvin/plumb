@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { DropZone } from './components/DropZone'
 import { btnSecondary, iconProps } from './components/ui'
+import { ConfirmDialog } from './components/ConfirmDialog'
 import { Wizard } from './components/Wizard'
 import { ThemeToggle } from './components/ThemeToggle'
 import { useHistory } from './hooks/useHistory'
@@ -29,6 +30,7 @@ export default function App() {
   const [format, setFormat] = useState<Format>(saved.format ?? 'png')
   const [busy, setBusy] = useState<DeviceKind | null>(null)
   const [dragging, setDragging] = useState(false)
+  const [confirmReset, setConfirmReset] = useState(false)
   const [carried, setCarried] = useState<DeviceKind | null>(null)
   const [justSaved, setJustSaved] = useState(false)
   const savedTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -146,7 +148,7 @@ export default function App() {
   const redo = () => follow(hist.redo())
   /** Back to the start screen with a clean slate. The chosen device is kept. */
   const reset = () => {
-    if (!confirm('Start over? This clears your image and all settings.')) return
+    setConfirmReset(false)
     clear()
     hist.reset(initialDevices())
     setStep('place')
@@ -226,7 +228,7 @@ export default function App() {
               <svg {...iconProps}><path d="m15 14 5-5-5-5" /><path d="M20 9H10a6 6 0 0 0 0 12h3" /></svg>
               <span className="max-sm:sr-only">Redo</span>
             </button>
-            <button type="button" className={btnSecondary} onClick={reset} title="Start over">
+            <button type="button" className={btnSecondary} onClick={() => setConfirmReset(true)} title="Start over">
               <svg {...iconProps}><path d="M3 11 12 4l9 7" /><path d="M5 10v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9" /></svg>
               <span className="max-sm:sr-only">Reset</span>
             </button>
@@ -276,6 +278,15 @@ export default function App() {
           />
         </main>
       )}
+
+      <ConfirmDialog
+        open={confirmReset}
+        title="Start over?"
+        body="This clears your image and all settings. It can't be undone."
+        confirmLabel="Start over"
+        onConfirm={reset}
+        onCancel={() => setConfirmReset(false)}
+      />
 
       {dragging && (
         <div className="pointer-events-none fixed inset-3 z-50 grid place-items-center rounded-[2rem] border-2 border-dashed border-stone-900/40 bg-stone-100/80 text-lg font-medium backdrop-blur dark:border-white/40 dark:bg-neutral-950/80">
