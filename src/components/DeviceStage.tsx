@@ -18,11 +18,9 @@ interface Props {
   blur?: boolean
   onChange: (s: DeviceSettings) => void
   onLegibility?: (l: Legibility | null) => void
-  /** Small screens: the preview may be at most this tall, in % of the viewport height. */
-  maxVh?: number
 }
 
-export function DeviceStage({ model, image, settings, view, blur, onChange, onLegibility, maxVh }: Props) {
+export function DeviceStage({ model, image, settings, view, blur, onChange, onLegibility }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const stage = useRef<HTMLDivElement>(null)
   const ghost = useRef<HTMLCanvasElement>(null)
@@ -128,17 +126,15 @@ export function DeviceStage({ model, image, settings, view, blur, onChange, onLe
   const titanium = 'linear-gradient(90deg,#6d6d72 0%,#c9c9ce 6%,#f4f4f6 12%,#b3b3b8 30%,#a0a0a6 70%,#e6e6e9 90%,#8a8a90 100%)'
   const buttonStyle = { background: 'linear-gradient(90deg,#8d8d93,#d9d9dd 50%,#8d8d93)' }
 
-  // On small screens, limit the width so the whole device fits in maxVh of the viewport height.
+  // Keep the whole device inside the stage area, whose height the parent sets in --stage-h.
   const ratio = model.h / model.w
-  const capW = maxVh
-    ? mac
-      ? `calc(${maxVh}svh / ${(0.968 * ratio + 0.112).toFixed(3)})`
-      : `calc((${maxVh}svh - 20px) / ${ratio.toFixed(3)} + 20px)`
-    : undefined
-  const cap = capW ? ({ '--cap': capW } as React.CSSProperties) : undefined
+  const capW = mac
+    ? `calc(var(--stage-h, 100svh) / ${(0.968 * ratio + 0.112).toFixed(3)})`
+    : `calc((var(--stage-h, 100svh) - 20px) / ${ratio.toFixed(3)} + 20px)`
+  const cap = { '--cap': capW } as React.CSSProperties
 
   return mac ? (
-    <div className="relative mx-auto w-full max-w-[760px] max-lg:max-w-(--cap)" style={{ ...cap, containerType: 'inline-size', paddingBottom: shape.stand ? 0 : '3cqw' }}>
+    <div className="relative mx-auto w-full max-w-[760px] max-w-(--cap)" style={{ ...cap, containerType: 'inline-size', paddingBottom: shape.stand ? 0 : '3cqw' }}>
       {/* lid: anodised aluminium with a lit top edge, shading to the sides */}
       <div
         className="relative"
@@ -194,7 +190,7 @@ export function DeviceStage({ model, image, settings, view, blur, onChange, onLe
       )}
     </div>
   ) : (
-    <div className="relative mx-auto w-[min(100%,290px)] max-lg:max-w-(--cap) lg:w-[min(100%,330px)]" style={cap}>
+    <div className="relative mx-auto w-[min(100%,290px)] max-w-(--cap) lg:w-[min(100%,330px)]" style={cap}>
       {/* side buttons sit just outside the rail */}
       <span className="absolute -left-[3px] top-[13%] h-[3%] w-[4px] rounded-l-[2px]" style={buttonStyle} />
       <span className="absolute -left-[3px] top-[19%] h-[6.5%] w-[4px] rounded-l-[2px]" style={buttonStyle} />

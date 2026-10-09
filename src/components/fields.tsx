@@ -38,9 +38,9 @@ export function Slider({ label, value, min, max, step, onChange, format }: { lab
 
 export function Swatches({ label, list, value, onChange, autoPreview }: { label: string; list: Swatch[]; value: string; onChange: (id: string) => void; autoPreview?: boolean }) {
   return (
-    <div role="radiogroup" onKeyDown={radioKeys} aria-label={label}>
-      <div className={field}>{label}</div>
-      <div className="mt-1.5 flex flex-wrap gap-2">
+    <div role="radiogroup" onKeyDown={radioKeys} aria-label={label} className="flex items-center gap-3">
+      <div className={`${field} w-12 shrink-0`}>{label}</div>
+      <div className="flex flex-wrap gap-2">
         {list.map((s) => {
           const auto = s.color === 'auto'
           return (

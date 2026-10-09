@@ -1,32 +1,34 @@
 import { useEffect, useRef } from 'react'
 import { radioKeys } from '../lib/a11y'
-import { LOOKS, applyGrade, findLook, type Finish } from '../lib/looks'
+import type { DeviceModel } from '../lib/devices'
+import { drawWallpaper, get2dP3, type DeviceSettings } from '../lib/draw'
+import { LOOKS, findLook, type Finish } from '../lib/looks'
 
-const W = 132
-const H = 88
+const W = 168
 
-function Thumb({ image, id }: { image: ImageBitmap; id: string }) {
+/** The device's own view of the image (same crop, zoom and frame) with this look applied. */
+function Thumb({ image, id, settings, model }: { image: ImageBitmap; id: string; settings: DeviceSettings; model: DeviceModel }) {
   const ref = useRef<HTMLCanvasElement>(null)
+  const h = Math.round((W * model.h) / model.w)
+  const { adjust, frame, finish } = settings
   useEffect(() => {
     const c = ref.current
     if (!c) return
-    const ctx = c.getContext('2d', { willReadFrequently: true })!
-    const s = Math.max(W / image.width, H / image.height)
-    ctx.imageSmoothingQuality = 'high'
-    ctx.drawImage(image, (W - image.width * s) / 2, (H - image.height * s) / 2, image.width * s, image.height * s)
-    applyGrade(ctx, { x: 0, y: 0, w: W, h: H }, { look: id, intensity: 1 })
-  }, [image, id])
-  return <canvas ref={ref} width={W} height={H} className="block aspect-[3/2] w-full" />
+    drawWallpaper(get2dP3(c), image, W, h, { adjust, frame, scrim: 0, finish: { look: id, intensity: finish.intensity, grain: 0, vignette: 0 } }, model.kind)
+  }, [image, id, adjust, frame, finish.intensity, h, model.kind])
+  return <canvas ref={ref} width={W} height={h} style={{ aspectRatio: `${model.w} / ${model.h}` }} className="block w-full" />
 }
 
 interface Props {
   image: ImageBitmap
   finish: Finish
+  settings: DeviceSettings
+  model: DeviceModel
   onChange: (f: Finish) => void
 }
 
 /** Grid of film looks with live thumbnails of the user's own image. */
-export function LookStrip({ image, finish, onChange }: Props) {
+export function LookStrip({ image, finish, settings, model, onChange }: Props) {
   const current = findLook(finish.look)
   return (
     <div>
@@ -48,7 +50,7 @@ export function LookStrip({ image, finish, onChange }: Props) {
               className="group text-left focus-visible:outline-none"
             >
               <span className={`block overflow-hidden rounded-lg ring-1 transition group-focus-visible:ring-2 group-focus-visible:ring-stone-900 dark:group-focus-visible:ring-white ${on ? 'ring-2 ring-stone-900 dark:ring-white' : 'ring-black/10 group-hover:ring-black/30 dark:ring-white/10 dark:group-hover:ring-white/30'}`}>
-                <Thumb image={image} id={l.id} />
+                <Thumb image={image} id={l.id} settings={settings} model={model} />
               </span>
               <span className={`mt-1 block text-center text-[11px] leading-tight whitespace-nowrap tracking-tight ${on ? 'font-semibold' : 'text-stone-500 dark:text-white/50'}`}>{l.label}</span>
             </button>

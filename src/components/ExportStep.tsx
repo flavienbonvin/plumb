@@ -4,6 +4,7 @@ import { select, HowTo } from './fields'
 import type { Legibility } from '../lib/legibility'
 import type { ScreenView } from '../lib/devices'
 import { QualityNote } from './QualityNote'
+import { Reveal } from './Reveal'
 import { iconProps } from './ui'
 
 interface Props {
@@ -41,18 +42,18 @@ export function ExportStep({ model, format, onFormat, upscale, busy, exported, o
   const other: DeviceKind = kind === 'mac' ? 'iphone' : 'mac'
   return (
     <>
-      {carriedFrom && (
+      <Reveal show={!!carriedFrom} gap="1.25rem">
         <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-900 dark:bg-emerald-400/10 dark:text-emerald-200">
-          Started from your {name(carriedFrom)} wallpaper: same look, frame and position.{' '}
+          Started from your {carriedFrom ? name(carriedFrom) : ''} wallpaper: same look, frame and position.{' '}
           <button type="button" onClick={onAdjust} className="font-medium underline underline-offset-2">Adjust position</button>
         </p>
-      )}
-      {view === 'lock' && level && level !== 'good' && scrim === 0 && (
+      </Reveal>
+      <Reveal show={view === 'lock' && !!level && level !== 'good' && scrim === 0} gap="1.25rem">
         <p role="status" className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-400/10 dark:text-amber-200">
           The clock may be hard to read on this photo.{' '}
           <button type="button" onClick={onFixClock} className="font-medium underline underline-offset-2">Add a shade in Style</button>
         </p>
-      )}
+      </Reveal>
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 rounded-xl bg-stone-100/80 p-4 text-sm dark:bg-white/[0.04]">
         <dt className="text-stone-500 dark:text-white/50">Device</dt>
         <dd className="text-right">{model.label}</dd>
@@ -79,7 +80,7 @@ export function ExportStep({ model, format, onFormat, upscale, busy, exported, o
             {kind === 'iphone' ? 'Share · AirDrop or Save to Photos' : 'Share · AirDrop'}
           </button>
         )}
-        <div className="mt-2"><QualityNote upscale={upscale} /></div>
+        <QualityNote upscale={upscale} space="0.5rem" />
         <HowTo kind={kind} exported={exported} shared={!!onShare} />
       </div>
       <button

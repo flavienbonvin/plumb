@@ -6,7 +6,7 @@
   --font-display: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
 }
 
-html { color-scheme: light; }
+html { color-scheme: light; scrollbar-gutter: stable; }
 html.dark { color-scheme: dark; }
 body { @apply bg-stone-100 text-stone-900 antialiased dark:bg-neutral-950 dark:text-stone-100; font-family: var(--font-sans); }
 
