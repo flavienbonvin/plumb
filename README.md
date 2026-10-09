@@ -1,8 +1,20 @@
 # Plumb
 
-Drop an image, position it behind a realistic Mac or iPhone lock screen (clock, date, notch / Dynamic Island), optionally mount it in a framed, matted print, and export at the device's native resolution. Runs entirely in the browser.
+Drop an image, see it behind the clock on a Mac or iPhone lock screen, frame it, give it a film look, and export it at the screen's native resolution. Everything runs in your browser; nothing is uploaded.
 
-## Use
+## Features
+
+- **Previews** for each device: lock screen, Mac desktop (menu bar and Dock) or iPhone home screen, or the plain wallpaper. Models: MacBook Neo, Air 13″ and 15″, Pro 14″ and 16″, 4K and 5K displays, and iPhones from the 15 to the 18 Pro Max (including the Air, 16e and 17e), plus custom sizes.
+- **Position**: drag, scroll or pinch to zoom, arrow keys to nudge. The image snaps to the centre lines.
+- **Frame it**: a moulding and a paper mat, with your choice of colours and thickness.
+- **Looks**: eight film looks inspired by Fujifilm simulations (Provia, Velvia, Astia, Classic Chrome, Classic Neg., Eterna, Acros), with grain and vignette. One look can be shared by both devices.
+- **Clock check**: warns when white lock screen text will be hard to read and can add a soft shade behind it.
+- **Export**: PNG or JPEG in Display P3, named `<image>-mac` and `<image>-iphone`. Share through the system share sheet (AirDrop, Save to Photos) where the browser supports it.
+- **Comfort**: light and dark themes, undo and redo (⌘Z, ⇧⌘Z), your last image and settings are remembered locally.
+
+The lock screen, desktop and home screen overlays, and the iOS home screen blur option, are previews only. They are never part of the exported file. The app icons shown on the desktop and home screen are neutral placeholder tiles, not real app icons.
+
+## Develop
 
 ```sh
 pnpm install
@@ -10,32 +22,31 @@ pnpm dev        # http://localhost:5173
 pnpm build      # static output in dist/
 ```
 
-- Drop, browse or paste (⌘V) an image. Choose Mac, iPhone or Both.
-- Drag to move, scroll / pinch to zoom, double-click or `0` to reset, arrow keys to nudge (Shift for bigger steps), `+` / `-` to zoom.
-- **Frame it** puts the image in a moulding with a paper mat on a wall colour (auto-derived from the image, or pick one).
-- Your last image and settings are remembered locally (IndexedDB / localStorage). Undo / redo with ⌘Z / ⇧⌘Z.
-- Exports are tagged Display P3, so colours match what Apple screens show.
-- Pick a device model or enter a custom size.
-- Downloads are named `<image>-mac.png` and `<image>-iphone.png`. The lock screen overlay is never part of the export.
+Stack: Vite, React, TypeScript and Tailwind CSS v4. No server code.
 
-## Notes
+Where things live:
 
-- Resolutions live in `src/lib/devices.ts`. Sizes were checked against Apple's spec page (MacBook Neo) and Wikipedia (iPhone 18 Pro / Pro Max). The base 18 and Air aren't listed yet.
-- Preview and export share one drawing function (`src/lib/draw.ts`), so the crop matches exactly.
-- Stack: Vite, React, TypeScript, Tailwind CSS v4.
+| Path | What |
+| --- | --- |
+| `src/lib/devices.ts` | Device list, resolutions, Dynamic Island and notch sizes |
+| `src/lib/draw.ts` | The one drawing function used by both preview and export |
+| `src/lib/looks.ts` | Film looks, grain and vignette |
+| `src/components/screens/` | Menu bar, status bar and placeholder icons |
+| `src/components/*Overlay.tsx` | Lock screen, desktop and home screen overlays |
+
+Device sizes were checked against Apple's spec pages, Wikipedia and ios-resolution.com. The Dynamic Island on the iPhone 18 Pro and Pro Max (about 81 × 37 pt) comes from reported figures, not an Apple specification.
 
 ## Deploy (Cloudflare)
 
-The app is a static site, served by Cloudflare Workers static assets (`wrangler.jsonc`, output in `dist/`).
+The site is static and is served by Cloudflare Workers static assets (`wrangler.jsonc`, output in `dist/`).
 
 ```sh
 pnpm exec wrangler login   # once
-pnpm deploy                # builds, then uploads dist/
+SITE_URL=https://your-domain pnpm deploy
 ```
 
-Or connect the GitHub repo in the Cloudflare dashboard (Workers & Pages → Create → Import a repository) with:
+`SITE_URL` makes the social preview image URL absolute, which link scrapers need. Without it the page works, but shared links may not show the preview.
 
-- Build command: `pnpm build`
-- Deploy command: `npx wrangler deploy`
+Or connect the GitHub repo in the Cloudflare dashboard (Workers & Pages, then Create, then Import a repository) with `pnpm build` as the build command and `npx wrangler deploy` as the deploy command. Set `SITE_URL` as a build variable there.
 
 `public/_headers` sets security headers and long-lived caching for the hashed files in `/assets`.
