@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import type { DeviceKind } from '../lib/devices'
 
 export const field = 'text-xs font-medium text-stone-500 dark:text-white/50'
@@ -22,12 +22,15 @@ export function Switch({ checked, onChange, label }: { checked: boolean; onChang
   )
 }
 
-export function Slider({ label, value, min, max, step, onChange, format }: { label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void; format: (v: number) => string }) {
+export function Slider({ label, value, min, max, step, onChange, format, action }: { label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void; format: (v: number) => string; /** Small control shown before the value, for example a reset. */ action?: ReactNode }) {
   return (
     <label className="block">
       <span className="flex justify-between">
         <span className={field}>{label}</span>
-        <span className="text-xs tabular-nums text-stone-400 dark:text-white/40">{format(value)}</span>
+        <span className="flex items-center gap-3">
+          {action}
+          <span className="text-xs tabular-nums text-stone-500 dark:text-white/55">{format(value)}</span>
+        </span>
       </span>
       <input type="range" name={label.toLowerCase().replace(/\s+/g, "-")} min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} className="mt-0.5 h-6 w-full" />
     </label>

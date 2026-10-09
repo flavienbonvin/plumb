@@ -20,7 +20,7 @@ export function ThemeToggle({ value, onChange }: { value: ThemePref; onChange: (
           title={o.label}
           onClick={() => onChange(o.id)}
           className={`grid h-8 w-8 place-items-center rounded-full transition focus-visible:outline-2 focus-visible:outline-stone-900 dark:focus-visible:outline-white ${
-            value === o.id ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900' : 'text-stone-500 hover:text-stone-900 dark:text-white/50 dark:hover:text-white'
+            value === o.id ? 'bg-stone-200/80 text-stone-900 dark:bg-white/15 dark:text-white' : 'text-stone-500 hover:text-stone-900 dark:text-white/55 dark:hover:text-white'
           }`}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={o.icon} /></svg>

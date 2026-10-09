@@ -34,6 +34,6 @@ export const sampleCredit = (s: Sample) => `${s.title}, ${s.artist}, ${s.year}`
 
 export async function sampleFile(s: Sample): Promise<File> {
   const res = await fetch(`/samples/${s.id}.webp`)
-  if (!res.ok) throw new Error('Couldn’t load the sample. Check your connection and try again.')
+  if (!res.ok) throw new Error('Couldn’t load the painting. Check your connection and try again.')
   return new File([await res.blob()], `${s.id}.webp`, { type: 'image/webp' })
 }

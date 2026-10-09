@@ -1,25 +1,44 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import type { DeviceKind } from '../lib/devices'
 import { sampleCredit, sampleThumb, samplesFor, type Sample } from '../lib/samples'
 import { DeviceSwitch } from './DeviceSwitch'
 
-function Thumb({ sample, onPick }: { sample: Sample; onPick: (s: Sample) => void }) {
+function Thumb({ sample, onPick, busy, disabled }: { sample: Sample; onPick: (s: Sample) => void; busy: boolean; disabled: boolean }) {
   return (
     <button
       type="button"
       onClick={() => onPick(sample)}
+      disabled={disabled}
+      aria-busy={busy}
       title={sampleCredit(sample)}
-      className="group relative overflow-hidden rounded-xl text-left ring-1 ring-black/10 transition duration-300 hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900 dark:ring-white/10 dark:focus-visible:outline-white"
+      className={`group relative overflow-hidden rounded-xl text-left ring-1 ring-black/10 transition duration-300 hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900 disabled:pointer-events-none dark:ring-white/10 dark:focus-visible:outline-white ${disabled && !busy ? 'opacity-50' : ''}`}
     >
       <img src={sampleThumb(sample)} alt="" loading="lazy" width={sample.kind === 'iphone' ? 320 : 480} height={sample.kind === 'iphone' ? 480 : 320} className={`block w-full object-cover transition duration-500 group-hover:scale-105 ${sample.kind === 'iphone' ? 'aspect-[2/3]' : 'aspect-[3/2]'}`} />
-      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-2.5 pt-6 pb-2 text-xs font-medium text-white">{sample.label}</span>
+      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-2.5 pt-6 pb-2 text-xs font-medium text-white">{busy ? 'Loading…' : sample.label}</span>
+      {busy && (
+        <span className="absolute inset-0 grid place-items-center bg-black/35" role="status">
+          <span className="h-6 w-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+          <span className="sr-only">Loading {sample.title}</span>
+        </span>
+      )}
       <span className="sr-only">Try with {sample.label}</span>
     </button>
   )
 }
 
-export function DropZone({ kind, onKind, onFile, onSample, error }: { kind: DeviceKind; onKind: (k: DeviceKind) => void; onFile: (f: File) => void; onSample: (s: Sample) => void; error?: string | null }) {
+export function DropZone({ kind, onKind, onFile, onSample, error }: { kind: DeviceKind; onKind: (k: DeviceKind) => void; onFile: (f: File) => void; onSample: (s: Sample) => void | Promise<void>; error?: string | null }) {
   const input = useRef<HTMLInputElement>(null)
+  // A painting is about a megabyte, so show that something is happening and ignore further clicks meanwhile.
+  const [loading, setLoading] = useState<string | null>(null)
+  const pick = async (s: Sample) => {
+    if (loading) return
+    setLoading(s.id)
+    try {
+      await onSample(s)
+    } finally {
+      setLoading(null)
+    }
+  }
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-2xl flex-col items-center justify-center px-6 text-center">
       <div className="mb-5 flex flex-col items-center gap-2">
@@ -29,7 +48,7 @@ export function DropZone({ kind, onKind, onFile, onSample, error }: { kind: Devi
       <button
         type="button"
         onClick={() => input.current?.click()}
-        className="group relative flex w-full flex-col items-center gap-5 rounded-[2rem] border border-dashed border-stone-300 bg-white/60 px-5 py-20 sm:px-20 transition hover:border-stone-400 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-stone-900 dark:border-white/15 dark:bg-white/[0.03] dark:hover:border-white/30 dark:hover:bg-white/[0.06] dark:focus-visible:outline-white"
+        className="group relative flex w-full flex-col items-center gap-5 rounded-[2rem] border border-dashed border-stone-300 bg-white/60 px-5 py-14 sm:px-20 transition hover:border-stone-400 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-stone-900 dark:border-white/15 dark:bg-white/[0.03] dark:hover:border-white/30 dark:hover:bg-white/[0.06] dark:focus-visible:outline-white"
       >
         <div className="flex items-end gap-3 text-stone-400 transition group-hover:text-stone-600 dark:text-white/30 dark:group-hover:text-white/60">
           <svg width="76" height="52" viewBox="0 0 76 52" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden className={`transition-opacity duration-200 ${kind === 'mac' ? '' : 'hidden'}`}>
@@ -53,7 +72,7 @@ export function DropZone({ kind, onKind, onFile, onSample, error }: { kind: Devi
       <div className="mt-8 w-full">
         <p className="mb-3 text-sm text-stone-500 dark:text-white/50">No image handy? Try a painting.</p>
         <div key={kind} className={`stage-enter gap-3 ${kind === 'iphone' ? 'mx-auto grid max-w-md grid-cols-3' : 'flex flex-wrap justify-center [&>*]:w-[calc((100%-1.5rem)/3)]'}`}>
-          {samplesFor(kind).map((s) => <Thumb key={s.id} sample={s} onPick={onSample} />)}
+          {samplesFor(kind).map((s) => <Thumb key={s.id} sample={s} onPick={pick} busy={loading === s.id} disabled={loading !== null} />)}
         </div>
       </div>
       <ul className="mt-12 grid w-full gap-6 text-left sm:grid-cols-3">
@@ -64,11 +83,11 @@ export function DropZone({ kind, onKind, onFile, onSample, error }: { kind: Devi
         ].map(([title, text]) => (
           <li key={title}>
             <h2 className="text-sm font-medium">{title}</h2>
-            <p className="mt-1 text-sm text-stone-500 dark:text-white/50">{text}</p>
+            <p className="mt-1 text-sm text-stone-500 dark:text-white/55">{text}</p>
           </li>
         ))}
       </ul>
-      <p className="mt-10 text-xs text-stone-400 dark:text-white/35">Everything stays in your browser. Nothing is uploaded.</p>
+      <p className="mt-10 text-xs text-stone-500 dark:text-white/50">Everything stays in your browser. Nothing is uploaded.</p>
       <input
         ref={input}
         type="file"

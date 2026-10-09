@@ -7,4 +7,7 @@ export const btnPrimary = `inline-flex items-center justify-center gap-2 rounded
 /** Outlined button with enough contrast to read as a button. */
 export const btnSecondary = `inline-flex items-center justify-center gap-1.5 rounded-full border border-stone-300 bg-white px-3.5 py-1.5 text-sm font-medium text-stone-800 shadow-sm transition hover:border-stone-400 hover:bg-stone-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/20 dark:bg-white/[0.07] dark:text-white dark:shadow-none dark:hover:bg-white/15 ${focus}`
 
+/** No border until hovered: for actions that should stay out of the way. */
+export const btnGhost = `inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-stone-500 transition hover:bg-stone-200/70 hover:text-stone-900 active:scale-[0.98] dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white ${focus}`
+
 export const iconProps = { width: 15, height: 15, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true } as const

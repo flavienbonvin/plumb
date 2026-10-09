@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { DropZone } from './components/DropZone'
-import { btnSecondary, iconProps } from './components/ui'
+import { btnGhost, btnSecondary, iconProps } from './components/ui'
 import { ConfirmDialog } from './components/ConfirmDialog'
 import { Wizard } from './components/Wizard'
 import { ThemeToggle } from './components/ThemeToggle'
@@ -197,7 +197,13 @@ export default function App() {
     }
   }
 
-  const pickSample = async (s: Sample) => open(await sampleFile(s))
+  const pickSample = async (s: Sample) => {
+    try {
+      await open(await sampleFile(s))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Couldn’t load the painting. Try again.')
+    }
+  }
   const clear = () => {
     closeImage(image)
     setImage(null)
@@ -228,7 +234,7 @@ export default function App() {
               <svg {...iconProps}><path d="m15 14 5-5-5-5" /><path d="M20 9H10a6 6 0 0 0 0 12h3" /></svg>
               <span className="max-sm:sr-only">Redo</span>
             </button>
-            <button type="button" className={btnSecondary} onClick={() => setConfirmReset(true)} title="Start over">
+            <button type="button" className={btnGhost} onClick={() => setConfirmReset(true)} title="Start over">
               <svg {...iconProps}><path d="M3 11 12 4l9 7" /><path d="M5 10v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9" /></svg>
               <span className="max-sm:sr-only">Reset</span>
             </button>
@@ -242,7 +248,7 @@ export default function App() {
       {!image ? (
         <main>
           {restoring ? (
-            showLoader && <p role="status" className="grid min-h-[60vh] animate-pulse place-items-center text-sm text-stone-400 dark:text-white/40">Restoring your last image…</p>
+            showLoader && <p role="status" className="grid min-h-[60vh] animate-pulse place-items-center text-sm text-stone-500 dark:text-white/55">Restoring your last image…</p>
           ) : (
             <DropZone kind={kind} onKind={setKind} onFile={open} onSample={pickSample} error={error} />
           )}
@@ -271,7 +277,6 @@ export default function App() {
             onDownload={() => run(kind)}
             onShare={canShare ? () => run(kind, true) : undefined}
             onReplace={open}
-            onRemove={clear}
             saved={justSaved}
             carriedFrom={carried}
             onCreateOther={() => createFor(kind === 'mac' ? 'iphone' : 'mac')}

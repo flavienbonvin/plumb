@@ -34,7 +34,6 @@ interface Props {
   onDownload: () => void
   onShare?: () => void
   onReplace: (f: File) => void
-  onRemove: () => void
   saved: boolean
   carriedFrom: DeviceKind | null
   onCreateOther: () => void
@@ -84,17 +83,17 @@ export function Wizard(p: Props) {
         <p role="status" aria-live="polite" className="sr-only">{announce}</p>
         <Stepper step={step} onStep={p.onStep} />
         {step === 'place' && (
-          <StepPanel dir={dir} title="Place" hint="Pick the device, then zoom and move the image." footer={footer}>
+          <StepPanel dir={dir} title="Place" hint="Zoom and drag to frame your image." footer={footer}>
             <PlaceStep
               kind={kind} onKind={p.onKind} image={image.preview} width={image.bitmap.width} height={image.bitmap.height}
-              onReplace={p.onReplace} onRemove={p.onRemove}
+              onReplace={p.onReplace}
               modelId={d.modelId} onModel={(modelId) => p.onPatch({ modelId })} custom={d.custom} onCustom={(custom) => p.onPatch({ custom })}
               settings={d.settings} onSettings={setSettings} view={d.view} level={p.level} upscale={p.upscale}
             />
           </StepPanel>
         )}
         {step === 'style' && (
-          <StepPanel dir={dir} title="Style" hint="Give it a look. The preview updates as you go." footer={footer}>
+          <StepPanel dir={dir} title="Style" hint="Set the mood. The preview updates as you go." footer={footer}>
             <StyleStep
               image={image.preview} model={model} settings={d.settings} onSettings={setSettings} onFinish={p.onFinish} view={d.view} level={p.level}
               showBlur={kind === 'iphone' && d.view === 'alt'} homeBlur={d.homeBlur} onHomeBlur={(homeBlur) => p.onPatch({ homeBlur })}
@@ -102,7 +101,7 @@ export function Wizard(p: Props) {
           </StepPanel>
         )}
         {step === 'export' && (
-          <StepPanel dir={dir} title="Export" hint="Save the file at the screen's native resolution." footer={footer}>
+          <StepPanel dir={dir} title="Export" hint="Ready at your screen's native resolution." footer={footer}>
             <ExportStep model={model} format={p.format} onFormat={p.onFormat} upscale={p.upscale} busy={p.busy} exported={p.exported} onDownload={p.onDownload} onShare={p.onShare} saved={p.saved} carriedFrom={p.carriedFrom} onAdjust={() => p.onStep('place')} view={d.view} level={p.level} scrim={d.settings.scrim} onFixClock={() => p.onStep('style')} onCreateOther={p.onCreateOther} />
           </StepPanel>
         )}

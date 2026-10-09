@@ -9,13 +9,15 @@ interface Props {
   level: Legibility | null
   settings: DeviceSettings
   onSettings: (s: DeviceSettings) => void
+  /** Show the shade slider only once a shade is set. The full slider lives in Style. */
+  compact?: boolean
 }
 
 /**
  * Tells you if the clock will be readable on the lock screen. The shade slider is always there,
  * so a vignette or a look that changes the verdict never takes the control away.
  */
-export function ClockStatus({ view, level, settings, onSettings }: Props) {
+export function ClockStatus({ view, level, settings, onSettings, compact = false }: Props) {
   return (
     <Reveal show={view === 'lock'} space="1.25rem">
       <div className="flex flex-col text-sm [&>*+*]:mt-2">
@@ -30,7 +32,9 @@ export function ClockStatus({ view, level, settings, onSettings }: Props) {
             Add a soft shade behind the clock
           </button>
         </Reveal>
-        <Slider label="Clock shade" value={settings.scrim} min={0} max={1} step={0.05} onChange={(scrim) => onSettings({ ...settings, scrim })} format={(v) => `${Math.round(v * 100)}%`} />
+        <Reveal show={!compact || settings.scrim > 0} space="0.5rem">
+          <Slider label="Clock shade" value={settings.scrim} min={0} max={1} step={0.05} onChange={(scrim) => onSettings({ ...settings, scrim })} format={(v) => `${Math.round(v * 100)}%`} />
+        </Reveal>
       </div>
     </Reveal>
   )

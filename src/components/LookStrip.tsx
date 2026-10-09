@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { radioKeys } from '../lib/a11y'
 import type { DeviceModel } from '../lib/devices'
-import { DEFAULT_FRAME, drawWallpaper, get2dP3, type DeviceSettings } from '../lib/draw'
+import { DEFAULT_FINISH, DEFAULT_FRAME, drawWallpaper, get2dP3, hasFinish, type DeviceSettings } from '../lib/draw'
 import { LOOKS, findLook, type Finish } from '../lib/looks'
 
 const W = 168
@@ -36,6 +36,13 @@ export function LookStrip({ image, finish, settings, model, onChange }: Props) {
   // Keep the chosen look in the middle of the row, so it is clear there is more on both sides.
   // Near either end it stays off-centre, because the row cannot scroll further.
   const placed = useRef(false)
+  // Scrollbars are hidden, so a fade at an edge that has more behind it tells you the row scrolls.
+  const [edge, setEdge] = useState({ start: false, end: false })
+  const updateEdge = () => {
+    const b = list.current
+    if (b) setEdge((e) => { const n = { start: b.scrollLeft > 2, end: b.scrollLeft < b.scrollWidth - b.clientWidth - 2 }; return n.start === e.start && n.end === e.end ? e : n })
+  }
+  useEffect(updateEdge, [row, finish.look])
   useEffect(() => {
     const box = list.current
     const on = box?.querySelector<HTMLElement>('[aria-checked="true"]')
@@ -49,9 +56,16 @@ export function LookStrip({ image, finish, settings, model, onChange }: Props) {
     <div className="min-w-0">
       <div className="flex items-baseline justify-between">
         <h3 className="text-sm font-medium">Look</h3>
-        <span className="text-xs text-stone-400 dark:text-white/40">Fujifilm-inspired</span>
+        <span className="flex items-center gap-3 text-xs text-stone-500 dark:text-white/55">
+          {hasFinish(finish) && (
+            <button type="button" onClick={() => onChange(DEFAULT_FINISH)} className="font-medium underline underline-offset-2 hover:text-stone-900 dark:hover:text-white">
+              Reset
+            </button>
+          )}
+          Fujifilm-inspired
+        </span>
       </div>
-      <div ref={list} role="radiogroup" onKeyDown={radioKeys} aria-label="Look" className={row ? 'no-scrollbar relative -mx-1 mt-1 flex gap-2 overflow-x-auto p-1' : 'mt-2 grid grid-cols-4 gap-2'}>
+      <div ref={list} onScroll={updateEdge} style={row ? { maskImage: `linear-gradient(to right, ${edge.start ? 'transparent' : '#000'} 0, #000 28px, #000 calc(100% - 28px), ${edge.end ? 'transparent' : '#000'} 100%)` } : undefined} role="radiogroup" onKeyDown={radioKeys} aria-label="Look" className={row ? 'no-scrollbar relative -mx-1 mt-1 flex gap-2 overflow-x-auto p-1' : 'mt-2 grid grid-cols-4 gap-2'}>
         {LOOKS.map((l) => {
           const on = finish.look === l.id
           return (
