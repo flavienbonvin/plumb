@@ -1,13 +1,12 @@
 import { radioKeys } from '../lib/a11y'
-export type Mode = 'mac' | 'iphone' | 'both'
+import type { DeviceKind } from '../lib/devices'
 
-const opts: { id: Mode; label: string }[] = [
+const opts: { id: DeviceKind; label: string }[] = [
   { id: 'mac', label: 'Mac' },
   { id: 'iphone', label: 'iPhone' },
-  { id: 'both', label: 'Both' },
 ]
 
-export function ModeSwitch({ value, onChange }: { value: Mode; onChange: (m: Mode) => void }) {
+export function DeviceSwitch({ value, onChange }: { value: DeviceKind; onChange: (k: DeviceKind) => void }) {
   return (
     <div role="radiogroup" onKeyDown={radioKeys} aria-label="Device" className="inline-flex rounded-full border border-stone-200 bg-white/70 p-0.5 dark:border-white/10 dark:bg-white/5">
       {opts.map((o) => (

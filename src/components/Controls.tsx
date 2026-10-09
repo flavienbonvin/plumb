@@ -21,9 +21,6 @@ interface Props {
   onSettings: (s: DeviceSettings) => void
   /** Look changes go through here so the app can mirror them to the other device. */
   onFinish: (f: Finish) => void
-  /** Undefined when only one device is shown. */
-  lookLinked?: boolean
-  onLookLinked: (on: boolean) => void
   onView: (v: ScreenView) => void
   homeBlur: boolean
   onHomeBlur: (v: boolean) => void
@@ -33,7 +30,7 @@ interface Props {
   exported: boolean
 }
 
-export function Controls({ kind, image, modelId, model, custom, onCustom, settings, view, busy, upscale, legibility, onModel, onSettings, onFinish, lookLinked, onLookLinked, onView, homeBlur, onHomeBlur, onDownload, onShare, exported }: Props) {
+export function Controls({ kind, image, modelId, model, custom, onCustom, settings, view, busy, upscale, legibility, onModel, onSettings, onFinish, onView, homeBlur, onHomeBlur, onDownload, onShare, exported }: Props) {
   const { adjust, frame } = settings
   const setFinish = (p: Partial<Finish>) => onFinish({ ...settings.finish, ...p })
   const pct = (v: number) => `${Math.round(v * 100)}%`
@@ -72,7 +69,6 @@ export function Controls({ kind, image, modelId, model, custom, onCustom, settin
 
       <div className="space-y-4 border-y border-stone-200 py-5 dark:border-white/10">
         <LookStrip image={image} finish={settings.finish} onChange={onFinish} />
-        {lookLinked !== undefined && <Switch checked={lookLinked} onChange={onLookLinked} label="Same look on Mac and iPhone" />}
         {settings.finish.look !== 'none' && (
           <Slider label="Look strength" value={settings.finish.intensity} min={0} max={1} step={0.05} onChange={(intensity) => setFinish({ intensity })} format={pct} />
         )}

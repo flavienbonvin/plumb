@@ -25,8 +25,9 @@ export function download(blob: Blob, filename: string) {
   setTimeout(() => URL.revokeObjectURL(url), 10_000)
 }
 
-export function filename(base: string, kind: 'mac' | 'iphone', format: Format) {
-  return `${base}-${kind}.${format === 'jpeg' ? 'jpg' : 'png'}`
+/** Automatic file name, for example plumb-iphone.png. The browser adds (1) on repeats. */
+export function filename(kind: 'mac' | 'iphone', format: Format) {
+  return `plumb-${kind}.${format === 'jpeg' ? 'jpg' : 'png'}`
 }
 
 /** How many output pixels each source pixel is stretched to (>1 means upscaling). */

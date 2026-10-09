@@ -4,58 +4,19 @@ import { DeviceStage } from './components/DeviceStage'
 import { DropZone } from './components/DropZone'
 import { ImageChip } from './components/ImageChip'
 import { btnSecondary, iconProps } from './components/ui'
-import { ModeSwitch, type Mode } from './components/ModeSwitch'
+import { DeviceSwitch } from './components/DeviceSwitch'
 import { ThemeToggle } from './components/ThemeToggle'
 import { useHistory } from './hooks/useHistory'
 import { useTheme } from './hooks/useTheme'
-import { DEFAULT_ADJUST, DEFAULT_FINISH, type Finish, DEFAULT_FRAME, type DeviceSettings } from './lib/draw'
-import { DEFAULT_MODEL, MODELS, CUSTOM_ID, resolveModel, type CustomSize, type DeviceKind, type ScreenView } from './lib/devices'
+import type { Finish } from './lib/draw'
+import { carryOver } from './lib/carry'
+import { initialDevices, LS, readSaved, type DeviceState, type Devices, type Step } from './lib/state'
+import { resolveModel, type DeviceKind } from './lib/devices'
 import { canShareFiles, download, filename, renderBlob, shareFiles, sleep, upscaleFactor, type Format } from './lib/export'
 import type { Legibility } from './lib/legibility'
 import { closeImage, imageFromDataTransfer, loadImageFile, type LoadedImage } from './lib/image'
 import { sampleFile, type Sample } from './lib/samples'
 import { clearSavedImage, loadSavedImage, saveImage } from './lib/store'
-
-interface DeviceState {
-  modelId: string
-  custom: CustomSize
-  settings: DeviceSettings
-  view: ScreenView
-  /** iPhone home screen only: blur the wallpaper behind the icons, like the iOS setting. */
-  homeBlur: boolean
-}
-type Devices = Record<DeviceKind, DeviceState>
-
-const initial = (kind: DeviceKind): DeviceState => ({
-  modelId: DEFAULT_MODEL[kind],
-  custom: kind === 'mac' ? { w: 2560, h: 1440 } : { w: 1170, h: 2532 },
-  settings: { adjust: DEFAULT_ADJUST, frame: DEFAULT_FRAME, scrim: 0, finish: DEFAULT_FINISH },
-  view: 'lock',
-  homeBlur: false,
-})
-const initialDevices = (): Devices => ({ mac: initial('mac'), iphone: initial('iphone') })
-
-const LS = 'plumb:v1'
-
-interface Saved { mode: Mode; format: Format; devices: Devices; linkLook: boolean }
-
-function readSaved(): Partial<Saved> {
-  try {
-    const raw = JSON.parse(localStorage.getItem(LS) ?? '{}') as Partial<Saved>
-    const base = initialDevices()
-    const devices = {} as Devices
-    for (const k of ['mac', 'iphone'] as DeviceKind[]) {
-      const d = raw.devices?.[k]
-      const known = d && (d.modelId === CUSTOM_ID || MODELS[k].some((m) => m.id === d.modelId))
-      const old = d as unknown as { overlay?: boolean }
-      if (d && !d.view) d.view = old.overlay === false ? 'off' : 'lock'
-      devices[k] = known ? { ...base[k], ...d, settings: { ...base[k].settings, ...d.settings, frame: { ...DEFAULT_FRAME, ...d.settings?.frame }, finish: { ...DEFAULT_FINISH, ...d.settings?.finish } } } : base[k]
-    }
-    return { mode: raw.mode, format: raw.format, devices, linkLook: raw.linkLook }
-  } catch {
-    return {}
-  }
-}
 
 export default function App() {
   const [theme, setTheme] = useTheme()
@@ -64,12 +25,12 @@ export default function App() {
   const [restoring, setRestoring] = useState(true)
   const [showLoader, setShowLoader] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [mode, setMode] = useState<Mode>(saved.mode ?? 'both')
+  const [kind, setKind] = useState<DeviceKind>(saved.kind ?? 'iphone')
+  const [step, setStep] = useState<Step>('place')
   const hist = useHistory<Devices>(saved.devices ?? initialDevices())
   const devices = hist.state
-  const [linkLook, setLinkLook] = useState(saved.linkLook ?? true)
   const [format, setFormat] = useState<Format>(saved.format ?? 'png')
-  const [busy, setBusy] = useState<DeviceKind | 'both' | null>(null)
+  const [busy, setBusy] = useState<DeviceKind | null>(null)
   const [dragging, setDragging] = useState(false)
   const [exported, setExported] = useState<Record<DeviceKind, boolean>>({ mac: false, iphone: false })
   const [canShare] = useState(canShareFiles)
@@ -113,10 +74,10 @@ export default function App() {
   // persist settings
   useEffect(() => {
     const t = setTimeout(() => {
-      try { localStorage.setItem(LS, JSON.stringify({ mode, format, devices, linkLook })) } catch { /* quota */ }
+      try { localStorage.setItem(LS, JSON.stringify({ kind, format, devices })) } catch { /* quota */ }
     }, 300)
     return () => clearTimeout(t)
-  }, [mode, format, devices, linkLook])
+  }, [kind, format, devices])
 
   // full-page drop + paste
   useEffect(() => {
@@ -167,35 +128,25 @@ export default function App() {
 
   const patch = (k: DeviceKind, p: Partial<DeviceState>) => hist.set((d) => ({ ...d, [k]: { ...d[k], ...p } }))
 
-  const linked = linkLook && mode === 'both'
-  /** Look changes mirror to the other device while linked, so both screens share one style. */
-  const setFinish = (k: DeviceKind, finish: Finish) =>
-    hist.set((d) => {
-      const next = { ...d, [k]: { ...d[k], settings: { ...d[k].settings, finish } } }
-      if (linked) {
-        const o: DeviceKind = k === 'mac' ? 'iphone' : 'mac'
-        next[o] = { ...d[o], settings: { ...d[o].settings, finish } }
-      }
-      return next
-    })
-  const toggleLink = (on: boolean, from: DeviceKind) => {
-    setLinkLook(on)
-    if (on) hist.set((d) => {
-      const o: DeviceKind = from === 'mac' ? 'iphone' : 'mac'
-      return { ...d, [o]: { ...d[o], settings: { ...d[o].settings, finish: d[from].settings.finish } } }
-    })
+  const setFinish = (k: DeviceKind, finish: Finish) => hist.set((d) => ({ ...d, [k]: { ...d[k], settings: { ...d[k].settings, finish } } }))
+  /** Starts the other device from this device's look, then shows it. */
+  const createFor = (to: DeviceKind) => {
+    hist.set((d) => carryOver(d, kind, to))
+    setKind(to)
+    setStep('export')
   }
+  void createFor
 
   const renderFile = async (k: DeviceKind) => {
     const d = devices[k]
     const blob = await renderBlob(image!.bitmap, resolveModel(k, d.modelId, d.custom), d.settings, format)
-    return new File([blob], filename(image!.name, k, format), { type: blob.type })
+    return new File([blob], filename(k, format), { type: blob.type })
   }
-  const run = async (which: DeviceKind | 'both', share = false) => {
+  const run = async (which: DeviceKind, share = false) => {
     if (!image) return
     setBusy(which)
     try {
-      const kinds: DeviceKind[] = which === 'both' ? ['mac', 'iphone'] : [which]
+      const kinds: DeviceKind[] = [which]
       if (share) {
         const files = await Promise.all(kinds.map(renderFile))
         if (!(await shareFiles(files))) return
@@ -222,7 +173,7 @@ export default function App() {
     clearSavedImage()
   }
 
-  const kinds: DeviceKind[] = mode === 'both' ? ['mac', 'iphone'] : [mode]
+  const kinds: DeviceKind[] = [kind]
   const primary =
     'rounded-full bg-stone-900 px-5 py-2 text-sm font-medium text-white transition hover:bg-stone-700 disabled:opacity-50 dark:bg-white dark:text-stone-900 dark:hover:bg-stone-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900 dark:focus-visible:outline-white'
 
@@ -247,7 +198,7 @@ export default function App() {
                 <svg {...iconProps}><path d="m15 14 5-5-5-5" /><path d="M20 9H10a6 6 0 0 0 0 12h3" /></svg>
                 Redo
               </button>
-              <ModeSwitch value={mode} onChange={setMode} />
+              <DeviceSwitch value={kind} onChange={setKind} />
           </div>
         )}
         <div className={`order-2 ml-auto sm:order-3 ${image ? 'sm:ml-0' : ''}`}>
@@ -264,7 +215,7 @@ export default function App() {
           )}
         </main>
       ) : (
-        <main className="mx-auto max-w-[1500px] px-4 pb-32 sm:px-8 lg:pb-16">
+        <main data-step={step} className="mx-auto max-w-[1500px] px-4 pb-32 sm:px-8 lg:pb-16">
           <h1 className="sr-only">Wallpaper preview and export</h1>
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <ImageChip image={image.preview} width={image.bitmap.width} height={image.bitmap.height} onReplace={open} onRemove={clear} />
@@ -276,22 +227,17 @@ export default function App() {
                   <option value="jpeg">JPEG</option>
                 </select>
               </label>
-              {mode === 'both' && (
-                <button type="button" onClick={() => run('both')} disabled={busy !== null} className={primary}>
-                  {busy === 'both' ? 'Exporting…' : 'Download both'}
-                </button>
-              )}
             </div>
           </div>
           {error && <p role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
 
-          <div className={`grid items-start gap-10 ${mode === 'both' ? 'lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]' : ''}`}>
+          <div className={`grid items-start gap-10`}>
             {kinds.map((k) => {
               const d = devices[k]
               const model = resolveModel(k, d.modelId, d.custom)
               return (
-                <section key={k} aria-label={k === 'mac' ? 'Mac wallpaper' : 'iPhone wallpaper'} className={`flex min-w-0 flex-col items-center gap-6 ${mode !== 'both' ? 'lg:flex-row lg:items-start lg:justify-center' : ''}`}>
-                  <div className={`flex w-full justify-center ${mode !== 'both' ? 'lg:w-auto lg:flex-1' : ''}`}>
+                <section key={k} aria-label={k === 'mac' ? 'Mac wallpaper' : 'iPhone wallpaper'} className={`flex min-w-0 flex-col items-center gap-6 lg:flex-row lg:items-start lg:justify-center`}>
+                  <div className={`flex w-full justify-center lg:w-auto lg:flex-1`}>
                     <DeviceStage model={model} image={image.preview} settings={d.settings} view={d.view} blur={d.homeBlur} onChange={(settings) => patch(k, { settings })} onLegibility={(l) => setLegibility((p) => (p[k] === l ? p : { ...p, [k]: l }))} />
                   </div>
                   <div className="w-full max-w-md shrink-0">
@@ -310,8 +256,6 @@ export default function App() {
                       onModel={(modelId) => patch(k, { modelId })}
                       onSettings={(settings) => patch(k, { settings })}
                       onFinish={(f) => setFinish(k, f)}
-                      lookLinked={mode === 'both' ? linkLook : undefined}
-                      onLookLinked={(on) => toggleLink(on, k)}
                       onView={(view) => patch(k, { view })}
                       homeBlur={d.homeBlur}
                       onHomeBlur={(homeBlur) => patch(k, { homeBlur })}
@@ -332,12 +276,12 @@ export default function App() {
               <option value="jpeg">JPEG</option>
             </select>
             {canShare && (
-              <button type="button" onClick={() => run(mode === 'both' ? 'both' : mode, true)} disabled={busy !== null} className="rounded-full border border-stone-300 px-5 py-3 text-sm font-medium dark:border-white/20">
+              <button type="button" onClick={() => run(kind, true)} disabled={busy !== null} className="rounded-full border border-stone-300 px-5 py-3 text-sm font-medium dark:border-white/20">
                 Share
               </button>
             )}
-            <button type="button" onClick={() => run(mode === 'both' ? 'both' : mode)} disabled={busy !== null} className={`${primary} flex-1 py-3`}>
-              {busy ? 'Exporting…' : mode === 'both' ? 'Download both' : `Download ${mode === 'mac' ? 'Mac' : 'iPhone'}`}
+            <button type="button" onClick={() => run(kind)} disabled={busy !== null} className={`${primary} flex-1 py-3`}>
+              {busy ? 'Exporting…' : `Download ${kind === 'mac' ? 'Mac' : 'iPhone'}`}
             </button>
           </div>
         </main>
