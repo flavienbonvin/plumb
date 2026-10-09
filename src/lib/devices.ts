@@ -14,7 +14,7 @@ export interface DeviceModel {
 
 // Resolutions are the native panel sizes. Models sharing a panel share a size.
 export const MACS: DeviceModel[] = [
-  { id: 'mbn', kind: 'mac', group: 'MacBook Neo', label: 'MacBook Neo', w: 2408, h: 1506, notch: true },
+  { id: 'mbn', kind: 'mac', group: 'MacBook Neo', label: 'MacBook Neo', w: 2408, h: 1506 },
   { id: 'mba13', kind: 'mac', group: 'MacBook Air', label: 'MacBook Air 13″', w: 2560, h: 1664, notch: true },
   { id: 'mba15', kind: 'mac', group: 'MacBook Air', label: 'MacBook Air 15″', w: 2880, h: 1864, notch: true },
   { id: 'mbp14', kind: 'mac', group: 'MacBook Pro', label: 'MacBook Pro 14″', w: 3024, h: 1964, notch: true },
