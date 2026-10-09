@@ -52,7 +52,7 @@ export function DropZone({ kind, onKind, onFile, onSample, error }: { kind: Devi
       {error && <p role="alert" className="mt-5 text-sm text-red-600 dark:text-red-400">{error}</p>}
       <div className="mt-8 w-full">
         <p className="mb-3 text-sm text-stone-500 dark:text-white/50">No image handy? Try a painting.</p>
-        <div key={kind} className={`stage-enter grid gap-3 ${kind === 'iphone' ? 'mx-auto max-w-md grid-cols-3' : 'grid-cols-3 sm:grid-cols-5'}`}>
+        <div key={kind} className={`stage-enter gap-3 ${kind === 'iphone' ? 'mx-auto grid max-w-md grid-cols-3' : 'flex flex-wrap justify-center [&>*]:w-[calc((100%-1.5rem)/3)]'}`}>
           {samplesFor(kind).map((s) => <Thumb key={s.id} sample={s} onPick={onSample} />)}
         </div>
       </div>
