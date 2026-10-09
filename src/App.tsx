@@ -250,7 +250,7 @@ export default function App() {
               <ModeSwitch value={mode} onChange={setMode} />
           </div>
         )}
-        <div className="order-2 ml-auto sm:order-3 sm:ml-0">
+        <div className={`order-2 ml-auto sm:order-3 ${image ? 'sm:ml-0' : ''}`}>
           <ThemeToggle value={theme} onChange={setTheme} />
         </div>
       </header>

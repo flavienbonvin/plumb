@@ -50,3 +50,7 @@ SITE_URL=https://your-domain pnpm deploy
 Or connect the GitHub repo in the Cloudflare dashboard (Workers & Pages, then Create, then Import a repository) with `pnpm build` as the build command and `npx wrangler deploy` as the deploy command. Set `SITE_URL` as a build variable there.
 
 `public/_headers` sets security headers and long-lived caching for the hashed files in `/assets`.
+
+## Sample photos
+
+Photos in `public/samples` are CC0 (public domain) from Wikimedia Commons: Aurora by Johannes Groll, Glacier by Adrian Aows, Dunes by Breanna Galley, Fog by Mar Mkrtchyan, Sunset by Arnaud Mesureur, Summit by Victor Filippov.

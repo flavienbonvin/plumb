@@ -1,20 +1,16 @@
-import { useEffect, useRef } from 'react'
-import { SAMPLES, renderSample, type Sample } from '../lib/samples'
+import { useRef } from 'react'
+import { SAMPLES, sampleThumb, type Sample } from '../lib/samples'
 
 function Thumb({ sample, onPick }: { sample: Sample; onPick: (s: Sample) => void }) {
-  const ref = useRef<HTMLCanvasElement>(null)
-  useEffect(() => {
-    const c = ref.current
-    if (!c) return
-    c.getContext('2d')!.drawImage(renderSample(sample, 240, 160), 0, 0)
-  }, [sample])
   return (
     <button
       type="button"
       onClick={() => onPick(sample)}
-      className="group overflow-hidden rounded-xl text-left ring-1 ring-black/10 transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900 dark:ring-white/10 dark:focus-visible:outline-white"
+      title={`Photo by ${sample.credit} · CC0`}
+      className="group relative overflow-hidden rounded-xl text-left ring-1 ring-black/10 transition duration-300 hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900 dark:ring-white/10 dark:focus-visible:outline-white"
     >
-      <canvas ref={ref} width={240} height={160} className="block h-auto w-full" />
+      <img src={sampleThumb(sample)} alt="" loading="lazy" width={480} height={320} className="block aspect-[3/2] w-full object-cover transition duration-500 group-hover:scale-105" />
+      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-3 pt-6 pb-2 text-xs font-medium text-white">{sample.label}</span>
       <span className="sr-only">Try with {sample.label}</span>
     </button>
   )
@@ -50,7 +46,7 @@ export function DropZone({ onFile, onSample, error }: { onFile: (f: File) => voi
       {error && <p role="alert" className="mt-5 text-sm text-red-600 dark:text-red-400">{error}</p>}
       <div className="mt-8 w-full">
         <p className="mb-3 text-sm text-stone-500 dark:text-white/50">No image handy? Try a sample.</p>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-3 gap-3">
           {SAMPLES.map((s) => <Thumb key={s.id} sample={s} onPick={onSample} />)}
         </div>
       </div>
