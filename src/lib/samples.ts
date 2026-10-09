@@ -14,7 +14,7 @@ export const SAMPLES: Sample[] = [
   { id: 'fog', label: 'Fog', credit: 'Mar Mkrtchyan', source: 'https://commons.wikimedia.org/wiki/File:Foggy_forest_hillside.jpg' },
   { id: 'ridges', label: 'Ridges', credit: 'simon from Austria', source: 'https://commons.wikimedia.org/wiki/File:Rocky_ride._-_Flickr_-_simon_berger.jpg' },
   { id: 'gold', label: 'Golden hour', credit: 'Johannes Plenio', source: 'https://commons.wikimedia.org/wiki/File:Beautiful_mountain_reflection_(Unsplash).jpg' },
-  { id: 'dusk', label: 'Dusk', credit: 'Unknown author', source: 'https://commons.wikimedia.org/wiki/File:Sky_Clouds_Atmosphere.jpg' },
+  { id: 'snow', label: 'Snow', credit: 'Bonnie Moreland', source: 'https://commons.wikimedia.org/wiki/File:Winter_snow_Mt_Hood_Oregon_(32345403681).jpg' },
   { id: 'lake', label: 'Lake', credit: 'Ales Krivec', source: 'https://commons.wikimedia.org/wiki/File:Clouds_mirrored_in_a_mountain_lake_(Unsplash).jpg' },
 ]
 

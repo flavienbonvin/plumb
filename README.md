@@ -53,4 +53,4 @@ Or connect the GitHub repo in the Cloudflare dashboard (Workers & Pages, then Cr
 
 ## Sample photos
 
-Photos in `public/samples` are CC0 (public domain) from Wikimedia Commons: Dunes by Breanna Galley, Fog by Mar Mkrtchyan, Ridges by Simon Berger, Golden hour by Johannes Plenio, Lake by Ales Krivec, Dusk (author unknown).
+Photos in `public/samples` are CC0 (public domain) from Wikimedia Commons: Dunes by Breanna Galley, Fog by Mar Mkrtchyan, Ridges by Simon Berger, Golden hour by Johannes Plenio, Lake by Ales Krivec, Snow by Bonnie Moreland.
