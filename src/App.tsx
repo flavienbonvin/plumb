@@ -202,11 +202,11 @@ export default function App() {
           <div className="ml-auto flex items-center gap-2">
             <button type="button" className={btnSecondary} onClick={hist.undo} disabled={!hist.canUndo} title="Undo (⌘Z)">
               <svg {...iconProps}><path d="M9 14 4 9l5-5" /><path d="M4 9h10a6 6 0 0 1 0 12h-3" /></svg>
-              Undo
+              <span className="max-sm:sr-only">Undo</span>
             </button>
             <button type="button" className={btnSecondary} onClick={hist.redo} disabled={!hist.canRedo} title="Redo (⇧⌘Z)">
               <svg {...iconProps}><path d="m15 14 5-5-5-5" /><path d="M20 9H10a6 6 0 0 0 0 12h3" /></svg>
-              Redo
+              <span className="max-sm:sr-only">Redo</span>
             </button>
           </div>
         )}
@@ -224,7 +224,7 @@ export default function App() {
           )}
         </main>
       ) : (
-        <main data-step={step} className="mx-auto max-w-[1500px] px-4 pb-16 sm:px-8">
+        <main data-step={step} className="mx-auto max-w-[1500px] px-4 pb-28 sm:px-8 lg:pb-16">
           <h1 className="sr-only">Wallpaper preview and export</h1>
           {error && <p role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
           <Wizard

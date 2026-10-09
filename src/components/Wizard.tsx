@@ -64,9 +64,9 @@ export function Wizard(p: Props) {
 
   return (
     <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
-      <div className="flex min-w-0 flex-col items-center gap-5 lg:sticky lg:top-6">
+      <div className="sticky top-0 z-30 -mx-4 flex min-w-0 flex-col items-center gap-3 bg-stone-100 px-4 pt-2 pb-3 sm:-mx-8 sm:px-8 lg:top-6 lg:mx-0 lg:gap-5 lg:bg-transparent lg:p-0 dark:bg-neutral-950 dark:lg:bg-transparent">
         <div className="flex w-full justify-center">
-          <DeviceStage key={kind} model={model} image={image.preview} settings={d.settings} view={d.view} blur={d.homeBlur} onChange={setSettings} onLegibility={p.onLevel} />
+          <DeviceStage key={kind} model={model} image={image.preview} settings={d.settings} view={d.view} blur={d.homeBlur} onChange={setSettings} onLegibility={p.onLevel} maxVh={40} />
         </div>
         <PreviewSwitch kind={kind} value={d.view} onChange={(view) => p.onPatch({ view })} />
       </div>
