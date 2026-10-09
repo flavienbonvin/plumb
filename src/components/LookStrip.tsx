@@ -48,7 +48,7 @@ export function LookStrip({ image, finish, settings, model, onChange }: Props) {
   return (
     <div className="min-w-0">
       <div className="flex items-baseline justify-between">
-        <h3 className="text-sm font-semibold">Look</h3>
+        <h3 className="text-sm font-medium">Look</h3>
         <span className="text-xs text-stone-400 dark:text-white/40">Fujifilm-inspired</span>
       </div>
       <div ref={list} role="radiogroup" onKeyDown={radioKeys} aria-label="Look" className={row ? 'no-scrollbar relative -mx-1 mt-1 flex gap-2 overflow-x-auto p-1' : 'mt-2 grid grid-cols-4 gap-2'}>
@@ -67,7 +67,7 @@ export function LookStrip({ image, finish, settings, model, onChange }: Props) {
               <span className={`block overflow-hidden rounded-lg ring-1 transition group-focus-visible:ring-2 group-focus-visible:ring-stone-900 dark:group-focus-visible:ring-white ${on ? 'ring-2 ring-stone-900 dark:ring-white' : 'ring-black/10 group-hover:ring-black/30 dark:ring-white/10 dark:group-hover:ring-white/30'}`}>
                 <Thumb image={image} id={l.id} settings={settings} model={model} />
               </span>
-              <span className={`mt-1 block text-center text-[11px] leading-tight whitespace-nowrap tracking-tight ${on ? 'font-semibold' : 'text-stone-500 dark:text-white/50'}`}>{l.label}</span>
+              <span className={`mt-1 block text-center text-[11px] leading-tight whitespace-nowrap tracking-tight ${on ? 'font-medium' : 'text-stone-500 dark:text-white/50'}`}>{l.label}</span>
             </button>
           )
         })}

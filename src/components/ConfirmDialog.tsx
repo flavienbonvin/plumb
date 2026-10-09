@@ -30,7 +30,7 @@ export function ConfirmDialog({ open, title, body, confirmLabel, onConfirm, onCa
       className="confirm m-auto w-[min(92vw,380px)] rounded-2xl border border-stone-200 bg-white p-0 text-stone-900 shadow-2xl backdrop:bg-black/40 dark:border-white/10 dark:bg-neutral-900 dark:text-stone-100"
     >
       <div className="p-6">
-        <h2 id="confirm-title" className="font-display text-lg font-semibold tracking-tight">{title}</h2>
+        <h2 id="confirm-title" className="font-display text-xl font-medium">{title}</h2>
         <p id="confirm-body" className="mt-1.5 text-sm text-stone-500 dark:text-white/55">{body}</p>
         <div className="mt-6 flex justify-end gap-2">
           <button type="button" autoFocus onClick={onCancel} className={btnSecondary}>Cancel</button>

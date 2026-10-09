@@ -3,7 +3,8 @@
 
 @theme {
   --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", sans-serif;
-  --font-display: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+  /* System serif: New York on Apple devices, so nothing extra to download. Used for headings only. */
+  --font-display: ui-serif, "New York", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
 }
 
 html { color-scheme: light; }

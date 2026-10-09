@@ -210,7 +210,7 @@ export default function App() {
   return (
     <div className="min-h-screen">
       <header className="mx-auto flex max-w-[1500px] items-center gap-3 px-4 py-3 sm:px-8 sm:py-4">
-        <span className="flex shrink-0 items-center gap-2 font-display text-base font-semibold tracking-tight">
+        <span className="flex shrink-0 items-center gap-2 font-display text-lg font-medium">
           <svg viewBox="0 0 64 64" className="h-6 w-6" aria-hidden>
             <rect width="64" height="64" rx="15" className="fill-stone-900 dark:fill-stone-100" />
             <line x1="32" y1="9" x2="32" y2="37" strokeWidth="2.6" strokeLinecap="round" className="stroke-white dark:stroke-stone-900" />

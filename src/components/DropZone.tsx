@@ -42,7 +42,7 @@ export function DropZone({ kind, onKind, onFile, onSample, error }: { kind: Devi
           </svg>
         </div>
         <div>
-          <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Fit any image to your lock screen</h1>
+          <h1 className="font-display text-balance text-[2rem] leading-[1.15] font-normal tracking-[-0.01em] sm:text-[2.5rem]">Fit any image to your lock screen</h1>
           <p className="mt-3 text-base text-stone-500 dark:text-white/55">
             Drop an image here, click to browse, or paste. Preview it behind the clock on your {kind === 'mac' ? 'Mac' : 'iPhone'}, then export at native resolution.
           </p>
@@ -63,7 +63,7 @@ export function DropZone({ kind, onKind, onFile, onSample, error }: { kind: Devi
           ['Export it exactly', 'Native resolution in Display P3, one file for each device.'],
         ].map(([title, text]) => (
           <li key={title}>
-            <h2 className="text-sm font-semibold">{title}</h2>
+            <h2 className="text-sm font-medium">{title}</h2>
             <p className="mt-1 text-sm text-stone-500 dark:text-white/50">{text}</p>
           </li>
         ))}
