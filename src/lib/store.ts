@@ -1,5 +1,5 @@
 // Tiny IndexedDB wrapper to remember the last image across reloads.
-const DB = 'wallpaper-fitter'
+const DB = 'plumb'
 const STORE = 'kv'
 
 function open(): Promise<IDBDatabase> {

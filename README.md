@@ -1,4 +1,4 @@
-# Wallpaper Fitter
+# Plumb
 
 Drop an image, position it behind a realistic Mac or iPhone lock screen (clock, date, notch / Dynamic Island), optionally mount it in a framed, matted print, and export at the device's native resolution. Runs entirely in the browser.
 

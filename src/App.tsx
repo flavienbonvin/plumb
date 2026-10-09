@@ -29,7 +29,7 @@ const initial = (kind: DeviceKind): DeviceState => ({
 })
 const initialDevices = (): Devices => ({ mac: initial('mac'), iphone: initial('iphone') })
 
-const LS = 'wallpaper-fitter:v1'
+const LS = 'plumb:v1'
 
 interface Saved { mode: Mode; format: Format; devices: Devices }
 
@@ -185,7 +185,7 @@ export default function App() {
   return (
     <div className="min-h-screen">
       <header className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 sm:px-8 sm:py-4">
-        <span className="shrink-0 font-display text-base font-semibold tracking-tight">Wallpaper Fitter</span>
+        <span className="shrink-0 font-display text-base font-semibold tracking-tight">Plumb</span>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {image && (
             <>
