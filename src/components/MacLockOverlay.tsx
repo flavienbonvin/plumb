@@ -1,29 +1,29 @@
 import { useClock } from '../hooks/useClock'
+import { lockDate, lockTime } from '../lib/format'
+import { Fingerprint } from './screens/icons'
+import { MacMenuBar } from './screens/MacMenuBar'
 
 const shadow = { textShadow: '0 1px 14px rgba(0,0,0,.28)' }
 
 export function MacLockOverlay({ notch }: { notch: boolean }) {
   const now = useClock()
-  const time = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', hour12: false }).format(now)
-  const date = new Intl.DateTimeFormat(undefined, { weekday: 'long', day: 'numeric', month: 'long' }).format(now)
-  const menuTime = new Intl.DateTimeFormat(undefined, { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }).format(now)
   return (
     <div className="pointer-events-none absolute inset-0 text-white" style={{ containerType: 'inline-size' }} aria-hidden>
-      {/* menu bar (lock screen shows only status items) */}
-      <div className="absolute inset-x-0 top-0 flex h-[2.3cqw] items-center justify-end gap-[1.2cqw] px-[1.6cqw] text-[1.1cqw] font-medium" style={shadow}>
-        <span>{menuTime}</span>
+      <MacMenuBar notch={notch} desktop={false} />
+      <div className="absolute inset-x-0 top-[6.6cqw] text-center" style={shadow}>
+        <div className="text-[1.9cqw] leading-none font-semibold opacity-90">{lockDate(now)}</div>
+        <div className="mt-[0.5cqw] text-[10.5cqw] leading-none font-semibold tracking-[-0.02em]" style={{ fontVariantNumeric: 'tabular-nums' }}>{lockTime(now)}</div>
       </div>
-      {notch && <div className="absolute top-0 left-1/2 h-[2.3cqw] w-[10.5cqw] -translate-x-1/2 rounded-b-[0.9cqw] bg-black" />}
-      <div className="absolute inset-x-0 top-[7cqw] text-center" style={shadow}>
-        <div className="text-[1.9cqw] font-medium opacity-90">{date}</div>
-        <div className="-mt-[0.4cqw] text-[11cqw] leading-none font-semibold tracking-tight" style={{ fontVariantNumeric: 'tabular-nums' }}>{time}</div>
-      </div>
-      <div className="absolute inset-x-0 bottom-[4.5cqw] flex flex-col items-center gap-[0.9cqw]">
-        <div className="grid h-[5.2cqw] w-[5.2cqw] place-items-center rounded-full bg-white/25 backdrop-blur-xl">
-          <svg viewBox="0 0 24 24" className="h-[3cqw]" fill="currentColor" opacity=".9"><circle cx="12" cy="8.5" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z" /></svg>
+      <div className="absolute inset-x-0 bottom-[4.2cqw] flex flex-col items-center">
+        <div className="grid h-[5.4cqw] w-[5.4cqw] place-items-center rounded-full bg-gradient-to-b from-white/35 to-white/15 ring-1 ring-white/30 backdrop-blur-xl">
+          <svg viewBox="0 0 24 24" className="h-[3.4cqw]" fill="currentColor" opacity=".92"><circle cx="12" cy="8.6" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z" /></svg>
         </div>
-        <div className="text-[1.3cqw] font-medium" style={shadow}>Your Name</div>
-        <div className="rounded-full bg-white/20 px-[1.4cqw] py-[0.5cqw] text-[1cqw] backdrop-blur-xl">Touch ID or Enter Password</div>
+        <div className="mt-[0.9cqw] text-[1.45cqw] leading-none font-semibold" style={shadow}>Your Name</div>
+        <div className="mt-[0.9cqw] flex h-[2.5cqw] w-[15.5cqw] items-center justify-between rounded-full bg-white/18 px-[1.1cqw] ring-1 ring-white/25 backdrop-blur-xl">
+          <span className="text-[1.1cqw] opacity-85">Enter Password</span>
+          <Fingerprint className="h-[1.5cqw] opacity-85" />
+        </div>
+        <div className="mt-[0.8cqw] text-[0.95cqw] opacity-75" style={shadow}>Touch ID or Enter Password</div>
       </div>
     </div>
   )

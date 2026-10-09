@@ -7,7 +7,7 @@ import { ThemeToggle } from './components/ThemeToggle'
 import { useHistory } from './hooks/useHistory'
 import { useTheme } from './hooks/useTheme'
 import { DEFAULT_ADJUST, DEFAULT_FINISH, type Finish, DEFAULT_FRAME, type DeviceSettings } from './lib/draw'
-import { DEFAULT_MODEL, MODELS, CUSTOM_ID, resolveModel, type CustomSize, type DeviceKind } from './lib/devices'
+import { DEFAULT_MODEL, MODELS, CUSTOM_ID, resolveModel, type CustomSize, type DeviceKind, type ScreenView } from './lib/devices'
 import { canShareFiles, download, filename, renderBlob, shareFiles, sleep, upscaleFactor, type Format } from './lib/export'
 import type { Legibility } from './lib/legibility'
 import { closeImage, imageFromDataTransfer, loadImageFile, type LoadedImage } from './lib/image'
@@ -18,7 +18,9 @@ interface DeviceState {
   modelId: string
   custom: CustomSize
   settings: DeviceSettings
-  overlay: boolean
+  view: ScreenView
+  /** iPhone home screen only: blur the wallpaper behind the icons, like the iOS setting. */
+  homeBlur: boolean
 }
 type Devices = Record<DeviceKind, DeviceState>
 
@@ -26,7 +28,8 @@ const initial = (kind: DeviceKind): DeviceState => ({
   modelId: DEFAULT_MODEL[kind],
   custom: kind === 'mac' ? { w: 2560, h: 1440 } : { w: 1170, h: 2532 },
   settings: { adjust: DEFAULT_ADJUST, frame: DEFAULT_FRAME, scrim: 0, finish: DEFAULT_FINISH },
-  overlay: true,
+  view: 'lock',
+  homeBlur: false,
 })
 const initialDevices = (): Devices => ({ mac: initial('mac'), iphone: initial('iphone') })
 
@@ -42,6 +45,8 @@ function readSaved(): Partial<Saved> {
     for (const k of ['mac', 'iphone'] as DeviceKind[]) {
       const d = raw.devices?.[k]
       const known = d && (d.modelId === CUSTOM_ID || MODELS[k].some((m) => m.id === d.modelId))
+      const old = d as unknown as { overlay?: boolean }
+      if (d && !d.view) d.view = old.overlay === false ? 'off' : 'lock'
       devices[k] = known ? { ...base[k], ...d, settings: { ...base[k].settings, ...d.settings, frame: { ...DEFAULT_FRAME, ...d.settings?.frame }, finish: { ...DEFAULT_FINISH, ...d.settings?.finish } } } : base[k]
     }
     return { mode: raw.mode, format: raw.format, devices, linkLook: raw.linkLook }
@@ -284,7 +289,7 @@ export default function App() {
               return (
                 <section key={k} aria-label={k === 'mac' ? 'Mac wallpaper' : 'iPhone wallpaper'} className={`flex min-w-0 flex-col items-center gap-6 ${mode !== 'both' ? 'lg:flex-row lg:items-start lg:justify-center' : ''}`}>
                   <div className={`flex w-full justify-center ${mode !== 'both' ? 'lg:w-auto lg:flex-1' : ''}`}>
-                    <DeviceStage model={model} image={image.preview} settings={d.settings} overlay={d.overlay} onChange={(settings) => patch(k, { settings })} onLegibility={(l) => setLegibility((p) => (p[k] === l ? p : { ...p, [k]: l }))} />
+                    <DeviceStage model={model} image={image.preview} settings={d.settings} view={d.view} blur={d.homeBlur} onChange={(settings) => patch(k, { settings })} onLegibility={(l) => setLegibility((p) => (p[k] === l ? p : { ...p, [k]: l }))} />
                   </div>
                   <div className="w-full max-w-md shrink-0">
                     <Controls
@@ -295,7 +300,7 @@ export default function App() {
                       custom={d.custom}
                       onCustom={(custom) => patch(k, { custom })}
                       settings={d.settings}
-                      overlay={d.overlay}
+                      view={d.view}
                       busy={busy !== null}
                       legibility={legibility[k]}
                       upscale={upscaleFactor(image.bitmap, model, d.settings)}
@@ -304,7 +309,9 @@ export default function App() {
                       onFinish={(f) => setFinish(k, f)}
                       lookLinked={mode === 'both' ? linkLook : undefined}
                       onLookLinked={(on) => toggleLink(on, k)}
-                      onOverlay={(overlay) => patch(k, { overlay })}
+                      onView={(view) => patch(k, { view })}
+                      homeBlur={d.homeBlur}
+                      onHomeBlur={(homeBlur) => patch(k, { homeBlur })}
                       onDownload={() => run(k)}
                       onShare={canShare ? () => run(k, true) : undefined}
                       exported={exported[k]}

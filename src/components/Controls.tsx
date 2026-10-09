@@ -2,7 +2,7 @@ import { LookStrip } from './LookStrip'
 import { DEFAULT_ADJUST, DEFAULT_FINISH, hasFinish, type Finish, FRAME_COLORS, MAT_COLORS, MAX_ZOOM, type DeviceSettings, type FrameSettings, type Swatch } from '../lib/draw'
 import { useEffect, useState } from 'react'
 import type { Legibility } from '../lib/legibility'
-import { CUSTOM_ID, groupModels, type CustomSize, type DeviceKind, type DeviceModel } from '../lib/devices'
+import { CUSTOM_ID, groupModels, type CustomSize, type DeviceKind, type DeviceModel, type ScreenView } from '../lib/devices'
 
 interface Props {
   kind: DeviceKind
@@ -12,7 +12,7 @@ interface Props {
   custom: CustomSize
   onCustom: (c: CustomSize) => void
   settings: DeviceSettings
-  overlay: boolean
+  view: ScreenView
   busy: boolean
   upscale: number | null
   legibility: Legibility | null
@@ -23,7 +23,9 @@ interface Props {
   /** Undefined when only one device is shown. */
   lookLinked?: boolean
   onLookLinked: (on: boolean) => void
-  onOverlay: (v: boolean) => void
+  onView: (v: ScreenView) => void
+  homeBlur: boolean
+  onHomeBlur: (v: boolean) => void
   onDownload: () => void
   /** Present only when the browser can open the system share sheet. */
   onShare?: () => void
@@ -121,7 +123,7 @@ function HowTo({ kind, exported, shared }: { kind: DeviceKind; exported: boolean
   )
 }
 
-export function Controls({ kind, image, modelId, model, custom, onCustom, settings, overlay, busy, upscale, legibility, onModel, onSettings, onFinish, lookLinked, onLookLinked, onOverlay, onDownload, onShare, exported }: Props) {
+export function Controls({ kind, image, modelId, model, custom, onCustom, settings, view, busy, upscale, legibility, onModel, onSettings, onFinish, lookLinked, onLookLinked, onView, homeBlur, onHomeBlur, onDownload, onShare, exported }: Props) {
   const { adjust, frame } = settings
   const setFinish = (p: Partial<Finish>) => onFinish({ ...settings.finish, ...p })
   const pct = (v: number) => `${Math.round(v * 100)}%`
@@ -174,8 +176,32 @@ export function Controls({ kind, image, modelId, model, custom, onCustom, settin
       </div>
 
       <div className="divide-y divide-stone-200 dark:divide-white/10">
-        <Switch checked={overlay} onChange={onOverlay} label="Lock screen preview" />
-        {overlay && (legibility || settings.scrim > 0) && (
+        <div className="py-3">
+          <div className={field}>Preview</div>
+          <div role="radiogroup" aria-label="Preview" className="mt-1.5 grid grid-cols-3 gap-1 rounded-xl bg-stone-100 p-1 dark:bg-white/[0.06]">
+            {([['lock', 'Lock screen'], ['alt', kind === 'mac' ? 'Desktop' : 'Home screen'], ['off', 'Plain']] as [ScreenView, string][]).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                role="radio"
+                aria-checked={view === id}
+                onClick={() => onView(id)}
+                className={`rounded-lg px-2 py-1.5 text-xs font-medium transition focus-visible:outline-2 focus-visible:outline-stone-900 dark:focus-visible:outline-white ${
+                  view === id ? 'bg-white text-stone-900 shadow-sm dark:bg-white/15 dark:text-white' : 'text-stone-500 hover:text-stone-900 dark:text-white/50 dark:hover:text-white'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+        {kind === 'iphone' && view === 'alt' && (
+          <div className="py-2">
+            <Switch checked={homeBlur} onChange={onHomeBlur} label="Blur wallpaper" />
+            <p className="text-xs text-stone-400 dark:text-white/40">Preview of the iOS home screen blur. iOS applies it itself; the file is unchanged.</p>
+          </div>
+        )}
+        {view === 'lock' && (legibility || settings.scrim > 0) && (
           <div className="space-y-2 py-3 text-sm">
             <div className="flex items-center gap-2" role="status">
               <span className={`h-2 w-2 rounded-full ${legibility === 'good' ? 'bg-emerald-500' : legibility === 'fair' ? 'bg-amber-400' : 'bg-red-500'}`} />

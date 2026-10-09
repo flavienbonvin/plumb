@@ -33,3 +33,18 @@ export function measureLegibility(src: HTMLCanvasElement, z: Zone): Legibility {
   const p = bright / n
   return p > 0.45 ? 'poor' : p > 0.15 ? 'fair' : 'good'
 }
+
+/** True when the zone is bright enough that dark text reads better (macOS flips its menu bar the same way). */
+export function isBright(src: HTMLCanvasElement, z: Zone): boolean {
+  const sx = z.x0 * src.width
+  const sy = z.y0 * src.height
+  scratch ??= document.createElement('canvas')
+  scratch.width = 32
+  scratch.height = 4
+  const ctx = scratch.getContext('2d', { willReadFrequently: true })!
+  ctx.drawImage(src, sx, sy, Math.max(1, (z.x1 - z.x0) * src.width), Math.max(1, (z.y1 - z.y0) * src.height), 0, 0, 32, 4)
+  const d = ctx.getImageData(0, 0, 32, 4).data
+  let sum = 0
+  for (let i = 0; i < d.length; i += 4) sum += 0.2126 * lin(d[i]) + 0.7152 * lin(d[i + 1]) + 0.0722 * lin(d[i + 2])
+  return sum / (d.length / 4) > 0.3
+}
