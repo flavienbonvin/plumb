@@ -33,19 +33,25 @@ export function LookStrip({ image, finish, settings, model, onChange }: Props) {
   // Tall screens would make a very long grid, so phones get one row you can swipe through.
   const row = model.h > model.w
   const list = useRef<HTMLDivElement>(null)
-  // Start with the chosen look in view.
+  // Keep the chosen look in the middle of the row, so it is clear there is more on both sides.
+  // Near either end it stays off-centre, because the row cannot scroll further.
+  const placed = useRef(false)
   useEffect(() => {
     const box = list.current
     const on = box?.querySelector<HTMLElement>('[aria-checked="true"]')
-    if (box && on && row) box.scrollLeft = on.offsetLeft - (box.clientWidth - on.offsetWidth) / 2
-  }, [row]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (!box || !on || !row) return
+    const centre = on.offsetLeft - (box.clientWidth - on.offsetWidth) / 2
+    const left = Math.min(Math.max(0, centre), box.scrollWidth - box.clientWidth)
+    box.scrollTo({ left, behavior: placed.current ? 'smooth' : 'auto' })
+    placed.current = true
+  }, [row, finish.look])
   return (
     <div className="min-w-0">
       <div className="flex items-baseline justify-between">
         <h3 className="text-sm font-semibold">Look</h3>
         <span className="text-xs text-stone-400 dark:text-white/40">Fujifilm-inspired</span>
       </div>
-      <div ref={list} role="radiogroup" onKeyDown={radioKeys} aria-label="Look" className={row ? 'no-scrollbar -mx-1 mt-1 flex snap-x gap-2 overflow-x-auto p-1' : 'mt-2 grid grid-cols-4 gap-2'}>
+      <div ref={list} role="radiogroup" onKeyDown={radioKeys} aria-label="Look" className={row ? 'no-scrollbar relative -mx-1 mt-1 flex gap-2 overflow-x-auto p-1' : 'mt-2 grid grid-cols-4 gap-2'}>
         {LOOKS.map((l) => {
           const on = finish.look === l.id
           return (
@@ -56,7 +62,7 @@ export function LookStrip({ image, finish, settings, model, onChange }: Props) {
               aria-checked={on}
               title={l.note}
               onClick={() => onChange({ ...finish, look: l.id, grain: l.grain, vignette: l.vignette })}
-              className={`group text-left focus-visible:outline-none ${row ? 'w-[84px] shrink-0 snap-start' : ''}`}
+              className={`group text-left focus-visible:outline-none ${row ? 'w-[84px] shrink-0' : ''}`}
             >
               <span className={`block overflow-hidden rounded-lg ring-1 transition group-focus-visible:ring-2 group-focus-visible:ring-stone-900 dark:group-focus-visible:ring-white ${on ? 'ring-2 ring-stone-900 dark:ring-white' : 'ring-black/10 group-hover:ring-black/30 dark:ring-white/10 dark:group-hover:ring-white/30'}`}>
                 <Thumb image={image} id={l.id} settings={settings} model={model} />
