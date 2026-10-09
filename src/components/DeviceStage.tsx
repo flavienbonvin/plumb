@@ -101,55 +101,53 @@ export function DeviceStage({ model, image, settings, view, blur, onChange, onLe
     </div>
   )
 
-  const metal = 'bg-gradient-to-b from-stone-300 to-stone-400 dark:from-neutral-600 dark:to-neutral-800'
-  const key = `absolute w-[3px] ${metal} ring-1 ring-black/10 dark:ring-white/10`
+  // Device colours stay the same in light and dark mode, like the real thing.
+  const titanium = 'linear-gradient(90deg,#6d6d72 0%,#c9c9ce 6%,#f4f4f6 12%,#b3b3b8 30%,#a0a0a6 70%,#e6e6e9 90%,#8a8a90 100%)'
+  const buttonStyle = { background: 'linear-gradient(90deg,#8d8d93,#d9d9dd 50%,#8d8d93)' }
+  const glass = { boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.08), inset 0 0 10px rgba(0,0,0,.8)' }
 
   return mac ? (
     <div className="relative w-full max-w-[760px] pb-5">
-      {/* lid: a hairline of brushed aluminium around a black glass bezel */}
+      {/* lid: anodised aluminium edge around a black glass bezel */}
       <div
-        className="relative rounded-[16px] p-[1.5px] shadow-[0_1px_0_rgba(255,255,255,.6)_inset] ring-1 ring-black/25 dark:ring-black/60"
-        style={{ background: 'linear-gradient(180deg,#e9e9ec 0%,#c5c6cb 35%,#a9aab0 100%)' }}
+        className="relative rounded-[18px] p-[3px] shadow-[0_30px_60px_-25px_rgba(0,0,0,.55)]"
+        style={{ background: 'linear-gradient(180deg,#f1f1f3 0%,#cfd0d4 12%,#b4b5ba 60%,#8e8f95 100%)', boxShadow: '0 0 0 1px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.9), 0 30px 60px -25px rgba(0,0,0,.55)' }}
       >
-        <div className="relative rounded-[14.5px] bg-[#0a0a0b] p-[7px] sm:p-[10px]" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.07), inset 0 0 14px rgba(0,0,0,.9)' }}>
-          {/* camera */}
-          <span aria-hidden className="absolute top-[2.5px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-[#1d2330] ring-1 ring-white/10 sm:top-[3.5px]" />
+        <div className="relative rounded-[15px] bg-black p-[8px] sm:p-[11px]" style={glass}>
+          <span aria-hidden className="absolute top-[3px] left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-[#202838] ring-1 ring-white/15 sm:top-[4.5px]" />
           {screen}
-          {/* glass reflection */}
           <span
             aria-hidden
-            className="pointer-events-none absolute inset-[7px] rounded-[10px] sm:inset-[10px] sm:rounded-[14px]"
-            style={{ background: 'linear-gradient(115deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 28%, rgba(255,255,255,0) 62%, rgba(255,255,255,.04) 100%)' }}
+            className="pointer-events-none absolute inset-[8px] rounded-[10px] sm:inset-[11px] sm:rounded-[14px]"
+            style={{ background: 'linear-gradient(115deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,0) 30%,rgba(255,255,255,0) 65%,rgba(255,255,255,.05) 100%)' }}
           />
         </div>
       </div>
-      {/* base seen from the front: wider than the lid, with the thumb notch and a rounded lip */}
+      {/* base seen from the front: wider than the lid, with a thumb notch */}
       <div
-        className="relative -mx-[5%] h-[13px] sm:h-[15px]"
+        className="relative -mx-[4.5%] h-[14px] sm:h-[17px]"
         style={{
-          background: 'linear-gradient(180deg,#8d8e94 0%,#d6d7db 18%,#c4c5ca 55%,#9a9ba1 100%)',
-          borderRadius: '0 0 22px 22px / 0 0 12px 12px',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(0,0,0,.25), 0 1px 0 rgba(0,0,0,.2)',
+          background: 'linear-gradient(180deg,#9a9ba1 0%,#e4e4e8 14%,#cdced2 55%,#8f9096 100%)',
+          borderRadius: '2px 2px 24px 24px / 2px 2px 14px 14px',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,.7), 0 0 0 1px rgba(0,0,0,.25)',
         }}
       >
-        <span
-          aria-hidden
-          className="absolute top-0 left-1/2 h-[5px] w-[15%] -translate-x-1/2 rounded-b-[10px]"
-          style={{ background: 'linear-gradient(180deg,#6f7076 0%,#a9aaaf 100%)', boxShadow: 'inset 0 1px 1px rgba(0,0,0,.35)' }}
-        />
+        <span aria-hidden className="absolute top-0 left-1/2 h-[6px] w-[16%] -translate-x-1/2 rounded-b-[12px]" style={{ background: 'linear-gradient(180deg,#6c6d73,#b4b5ba)', boxShadow: 'inset 0 1px 2px rgba(0,0,0,.4)' }} />
       </div>
-      {/* soft contact shadow on the surface below */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-[-4%] bottom-[8px] h-[18px] rounded-[50%] bg-black/35 blur-xl dark:bg-black/70" />
+      <div aria-hidden className="pointer-events-none absolute inset-x-[-3%] bottom-[6px] h-[16px] rounded-[50%] bg-black/30 blur-xl" />
     </div>
   ) : (
     <div className="relative w-[min(100%,290px)]">
-      <span className={`${key} -left-[2px] top-[13%] h-[3%] rounded-l-sm`} />
-      <span className={`${key} -left-[2px] top-[19%] h-[6.5%] rounded-l-sm`} />
-      <span className={`${key} -left-[2px] top-[27%] h-[6.5%] rounded-l-sm`} />
-      <span className={`${key} -right-[2px] top-[23%] h-[10%] rounded-r-sm`} />
-      <span className={`${key} -right-[2px] top-[67%] h-[7%] rounded-r-sm`} />
-      <div className="rounded-[17%/7.6%] bg-gradient-to-b from-stone-300 to-stone-400 p-[3px] shadow-2xl shadow-black/30 ring-1 ring-black/10 dark:from-neutral-600 dark:to-neutral-800 dark:ring-white/10">
-        <div className="rounded-[16.5%/7.3%] bg-black p-[7px]">{screen}</div>
+      {/* side buttons sit just outside the rail */}
+      <span className="absolute -left-[3px] top-[13%] h-[3%] w-[4px] rounded-l-[2px]" style={buttonStyle} />
+      <span className="absolute -left-[3px] top-[19%] h-[6.5%] w-[4px] rounded-l-[2px]" style={buttonStyle} />
+      <span className="absolute -left-[3px] top-[27%] h-[6.5%] w-[4px] rounded-l-[2px]" style={buttonStyle} />
+      <span className="absolute -right-[3px] top-[23%] h-[10%] w-[4px] rounded-r-[2px]" style={buttonStyle} />
+      <span className="absolute -right-[3px] top-[67%] h-[7%] w-[4px] rounded-r-[2px]" style={buttonStyle} />
+      {/* titanium rail */}
+      <div className="rounded-[17%/7.6%] p-[4px] shadow-2xl shadow-black/35" style={{ background: titanium, boxShadow: '0 0 0 1px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.5), 0 30px 50px -20px rgba(0,0,0,.5)' }}>
+        {/* black bezel */}
+        <div className="rounded-[16.2%/7.2%] bg-black p-[6px]" style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,.1)' }}>{screen}</div>
       </div>
     </div>
   )
