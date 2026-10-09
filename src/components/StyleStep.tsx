@@ -1,8 +1,9 @@
-import { DEFAULT_FINISH, FRAME_COLORS, MAT_COLORS, hasFinish, type DeviceSettings, type Finish, type FrameSettings } from '../lib/draw'
+import { DEFAULT_FINISH, hasFinish, type DeviceSettings, type Finish } from '../lib/draw'
 import type { DeviceModel, ScreenView } from '../lib/devices'
 import type { Legibility } from '../lib/legibility'
 import { ClockStatus } from './ClockStatus'
-import { Slider, Swatches, Switch } from './fields'
+import { FramePicker } from './FramePicker'
+import { Slider, Switch } from './fields'
 import { LookStrip } from './LookStrip'
 import { Reveal } from './Reveal'
 
@@ -25,7 +26,6 @@ const pct = (v: number) => `${Math.round(v * 100)}%`
 export function StyleStep({ image, model, settings, onSettings, onFinish, view, level, showBlur, homeBlur, onHomeBlur }: Props) {
   const { finish, frame } = settings
   const set = (p: Partial<Finish>) => onFinish({ ...finish, ...p })
-  const setFrame = (p: Partial<FrameSettings>) => onSettings({ ...settings, frame: { ...frame, ...p } })
   return (
     <>
       <LookStrip image={image} finish={finish} settings={settings} model={model} onChange={onFinish} />
@@ -41,17 +41,7 @@ export function StyleStep({ image, model, settings, onSettings, onFinish, view, 
       </Reveal>
 
       <div className="border-t border-stone-200 pt-3 dark:border-white/10">
-        <Switch checked={frame.enabled} onChange={(enabled) => setFrame({ enabled })} label="Frame it" />
-        <Reveal show={frame.enabled} space="0.5rem">
-          <div className="grid gap-3 rounded-xl bg-stone-100/80 p-3 dark:bg-white/[0.04]">
-            <Swatches label="Frame" list={FRAME_COLORS} value={frame.frameColor} onChange={(frameColor) => setFrame({ frameColor })} />
-            <Swatches label="Mat" list={MAT_COLORS} value={frame.matColor} onChange={(matColor) => setFrame({ matColor })} />
-            <div className="grid grid-cols-2 gap-4">
-              <Slider label="Frame width" value={frame.frameWidth} min={0.4} max={4} step={0.1} onChange={(frameWidth) => setFrame({ frameWidth })} format={(v) => v.toFixed(1)} />
-              <Slider label="Mat width" value={frame.matWidth} min={0} max={16} step={0.5} onChange={(matWidth) => setFrame({ matWidth })} format={(v) => v.toFixed(1)} />
-            </div>
-          </div>
-        </Reveal>
+        <FramePicker value={frame} onChange={(f) => onSettings({ ...settings, frame: f })} />
       </div>
 
       <ClockStatus view={view} level={level} settings={settings} onSettings={onSettings} />

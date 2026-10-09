@@ -1,4 +1,4 @@
-import { DEFAULT_ADJUST, DEFAULT_FINISH, DEFAULT_FRAME, type DeviceSettings } from './draw'
+import { DEFAULT_ADJUST, DEFAULT_FINISH, DEFAULT_FRAME, FRAME_PRESETS, type DeviceSettings } from './draw'
 import { CUSTOM_ID, DEFAULT_MODEL, MODELS, type CustomSize, type DeviceKind, type ScreenView } from './devices'
 import type { Format } from './export'
 
@@ -38,6 +38,14 @@ export function parseSaved(text: string | null): Partial<Saved> {
       const old = d as unknown as { overlay?: boolean }
       if (d && !d.view) d.view = old.overlay === false ? 'off' : 'lock'
       devices[k] = known ? { ...base[k], ...d, settings: { ...base[k].settings, ...d.settings, frame: { ...DEFAULT_FRAME, ...d.settings?.frame }, finish: { ...DEFAULT_FINISH, ...d.settings?.finish } } } : base[k]
+    }
+    // Older versions let you pick any colour and width. Keep the frame, but as one of the current choices.
+    for (const k of ['mac', 'iphone'] as DeviceKind[]) {
+      const f = devices[k].settings.frame
+      if (f.enabled && !FRAME_PRESETS.some((p) => p.frameColor === f.frameColor && p.matColor === f.matColor)) {
+        const p = FRAME_PRESETS.find((x) => x.frameColor === f.frameColor) ?? FRAME_PRESETS[0]
+        devices[k].settings.frame = { ...DEFAULT_FRAME, enabled: true, frameColor: p.frameColor, matColor: p.matColor }
+      }
     }
     const kind: DeviceKind | undefined = raw.kind === 'mac' || raw.kind === 'iphone' ? raw.kind : raw.mode === 'mac' ? 'mac' : raw.mode === 'iphone' || raw.mode === 'both' ? 'iphone' : undefined
     return { kind, format: raw.format, devices }

@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react'
-import { radioKeys } from '../lib/a11y'
-import type { Swatch } from '../lib/draw'
 import type { DeviceKind } from '../lib/devices'
 
 export const field = 'text-xs font-medium text-stone-500 dark:text-white/50'
@@ -33,36 +31,6 @@ export function Slider({ label, value, min, max, step, onChange, format }: { lab
       </span>
       <input type="range" name={label.toLowerCase().replace(/\s+/g, "-")} min={min} max={max} step={step} value={value} onChange={(e) => onChange(Number(e.target.value))} className="mt-0.5 h-6 w-full" />
     </label>
-  )
-}
-
-export function Swatches({ label, list, value, onChange, autoPreview }: { label: string; list: Swatch[]; value: string; onChange: (id: string) => void; autoPreview?: boolean }) {
-  return (
-    <div role="radiogroup" onKeyDown={radioKeys} aria-label={label} className="flex items-center gap-3">
-      <div className={`${field} w-12 shrink-0`}>{label}</div>
-      <div className="flex flex-wrap gap-2">
-        {list.map((s) => {
-          const auto = s.color === 'auto'
-          return (
-            <button
-              key={s.id}
-              type="button"
-              role="radio"
-              aria-checked={value === s.id}
-              aria-label={s.label}
-              title={s.label}
-              onClick={() => onChange(s.id)}
-              style={auto ? undefined : { background: s.color }}
-              className={`h-7 w-7 rounded-full ring-1 ring-black/15 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900 dark:ring-white/20 dark:focus-visible:outline-white ${
-                auto ? 'grid place-items-center bg-gradient-to-br from-amber-200 via-stone-400 to-slate-700 text-[9px] font-bold text-white' : ''
-              } ${value === s.id ? 'ring-2 ring-offset-2 ring-stone-900 ring-offset-white dark:ring-white dark:ring-offset-neutral-900' : ''}`}
-            >
-              {auto && autoPreview !== false ? 'A' : null}
-            </button>
-          )
-        })}
-      </div>
-    </div>
   )
 }
 

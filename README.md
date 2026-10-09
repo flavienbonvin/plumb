@@ -6,8 +6,8 @@ Drop an image, see it behind the clock on a Mac or iPhone lock screen, frame it,
 
 Pick Mac or iPhone, add an image, then go through three steps. You can jump to any step at any time.
 
-1. **Place**: choose the model, zoom and move the image, optionally frame it.
-2. **Style**: pick a film look, set grain, vignette and the clock shade. You can download from here.
+1. **Place**: choose the model, then zoom and move the image.
+2. **Style**: pick a film look, set grain, vignette, an optional frame and the clock shade. You can download from here.
 3. **Export**: check the summary, choose PNG or JPEG, download or share. **Also create for Mac / iPhone** starts the other device from the same look, frame and position, in one undo step.
 
 Each device keeps its own settings, so switching back restores them.
@@ -16,7 +16,7 @@ Each device keeps its own settings, so switching back restores them.
 
 - **Previews** for each device: lock screen, Mac desktop (menu bar and Dock) or iPhone home screen, or the plain wallpaper. Models: MacBook Neo, Air 13″ and 15″, Pro 14″ and 16″, 4K and 5K displays, and iPhones from the 15 to the 18 Pro Max (including the Air, 16e and 17e), plus custom sizes.
 - **Position**: drag, scroll or pinch to zoom, arrow keys to nudge. The image snaps to the centre lines.
-- **Frame it**: a moulding and a paper mat, with your choice of colours and thickness.
+- **Frame**: a black, oak or white gallery frame with a paper mat, or none.
 - **Looks**: film looks inspired by Fujifilm simulations (Provia, Velvia, Astia, Classic Chrome, Classic Neg., Eterna, Acros), with grain and vignette. A new look cross-fades in.
 - **Clock check**: warns when white lock screen text will be hard to read and can add a soft shade behind it.
 - **Export**: PNG or JPEG in Display P3, named `plumb-mac` and `plumb-iphone`. Share through the system share sheet (AirDrop, Save to Photos) where the browser supports it.

@@ -57,6 +57,13 @@ export const DEFAULT_FRAME: FrameSettings = {
   matWidth: 7,
 }
 
+/** The frames offered in the app. Width and mat width stay at their defaults. */
+export const FRAME_PRESETS: { id: string; label: string; swatch: string; frameColor: string; matColor: string }[] = [
+  { id: 'black', label: 'Black', swatch: '#1b1b1c', frameColor: 'black', matColor: 'paper' },
+  { id: 'oak', label: 'Oak', swatch: '#b88d5d', frameColor: 'oak', matColor: 'paper' },
+  { id: 'white', label: 'White', swatch: '#f2f0eb', frameColor: 'white', matColor: 'grey' },
+]
+
 export const DEFAULT_ADJUST: Adjust = { zoom: 1, px: 0, py: 0 }
 
 export const MAX_ZOOM = 4
