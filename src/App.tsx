@@ -29,6 +29,9 @@ export default function App() {
   const [format, setFormat] = useState<Format>(saved.format ?? 'png')
   const [busy, setBusy] = useState<DeviceKind | null>(null)
   const [dragging, setDragging] = useState(false)
+  const [carried, setCarried] = useState<DeviceKind | null>(null)
+  const [justSaved, setJustSaved] = useState(false)
+  const savedTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const [exported, setExported] = useState<Record<DeviceKind, boolean>>({ mac: false, iphone: false })
   const [canShare] = useState(canShareFiles)
   const [legibility, setLegibility] = useState<Record<DeviceKind, Legibility | null>>({ mac: null, iphone: null })
@@ -131,8 +134,16 @@ export default function App() {
     hist.set((d) => carryOver(d, kind, to))
     setKind(to)
     setStep('export')
+    setCarried(kind)
   }
-  void createFor
+  const goStep = (s: Step) => {
+    setStep(s)
+    if (s !== 'export') setCarried(null)
+  }
+  const switchKind = (k: DeviceKind) => {
+    setKind(k)
+    setCarried(null)
+  }
 
   const renderFile = async (k: DeviceKind) => {
     const d = devices[k]
@@ -155,6 +166,9 @@ export default function App() {
         }
       }
       setExported((e) => ({ ...e, ...Object.fromEntries(kinds.map((k) => [k, true])) }))
+      setJustSaved(true)
+      clearTimeout(savedTimer.current)
+      savedTimer.current = setTimeout(() => setJustSaved(false), 1500)
       setError(null)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Export failed.')
@@ -215,9 +229,9 @@ export default function App() {
           {error && <p role="alert" className="mb-4 text-sm text-red-600 dark:text-red-400">{error}</p>}
           <Wizard
             kind={kind}
-            onKind={setKind}
+            onKind={switchKind}
             step={step}
-            onStep={setStep}
+            onStep={goStep}
             image={image}
             d={d}
             model={model}
@@ -234,6 +248,9 @@ export default function App() {
             onShare={canShare ? () => run(kind, true) : undefined}
             onReplace={open}
             onRemove={clear}
+            saved={justSaved}
+            carriedFrom={carried}
+            onCreateOther={() => createFor(kind === 'mac' ? 'iphone' : 'mac')}
           />
         </main>
       )}

@@ -18,7 +18,7 @@ export function StepPanel({ title, hint, children, footer }: Props) {
         </header>
         {children}
       </div>
-      <footer className="flex items-center gap-2 border-t border-stone-200 p-4 dark:border-white/10">{footer}</footer>
+      <footer className="flex flex-wrap items-center gap-2 border-t border-stone-200 p-4 dark:border-white/10">{footer}</footer>
     </section>
   )
 }

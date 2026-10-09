@@ -35,6 +35,9 @@ interface Props {
   onShare?: () => void
   onReplace: (f: File) => void
   onRemove: () => void
+  saved: boolean
+  carriedFrom: DeviceKind | null
+  onCreateOther: () => void
 }
 
 const primaryBtn =
@@ -50,6 +53,11 @@ export function Wizard(p: Props) {
   const footer: ReactNode = (
     <>
       {prev && <button type="button" onClick={() => p.onStep(prev.id)} className={btnSecondary}>Back</button>}
+      {step === 'style' && (
+        <button type="button" onClick={p.onDownload} disabled={p.busy} className={btnSecondary}>
+          {p.busy ? 'Exporting…' : p.saved ? 'Saved ✓' : 'Download'}
+        </button>
+      )}
       {next && <button type="button" onClick={() => p.onStep(next.id)} className={`${primaryBtn} ml-auto`}>Next: {next.label}</button>}
     </>
   )
@@ -85,7 +93,7 @@ export function Wizard(p: Props) {
         )}
         {step === 'export' && (
           <StepPanel title="Export" hint="Save the file at the screen's native resolution." footer={footer}>
-            <ExportStep model={model} format={p.format} onFormat={p.onFormat} upscale={p.upscale} busy={p.busy} exported={p.exported} onDownload={p.onDownload} onShare={p.onShare} />
+            <ExportStep model={model} format={p.format} onFormat={p.onFormat} upscale={p.upscale} busy={p.busy} exported={p.exported} onDownload={p.onDownload} onShare={p.onShare} saved={p.saved} carriedFrom={p.carriedFrom} onAdjust={() => p.onStep('place')} onCreateOther={p.onCreateOther} />
           </StepPanel>
         )}
       </div>
